@@ -1,9 +1,45 @@
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import useTaskStore from '../store/taskStore.js';
 import { SubtaskCard } from './SubtaskCard.jsx';
 
 function TaskCard({ task }) {
-  const { deleteTask, setCurrentTask, getTaskProgress } = useTaskStore();
+  const { deleteTask, setCurrentTask, getTaskProgress, reorderSubtasks } = useTaskStore();
   const progress = getTaskProgress(task.id);
+
+  // PointerSensor con activationConstraint evita que clicks en botones inicien drag accidental
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = task.subtasks.findIndex((st) => st.id === active.id);
+    const newIndex = task.subtasks.findIndex((st) => st.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(task.subtasks, oldIndex, newIndex);
+    reorderSubtasks(task.id, reordered.map((st) => st.id));
+  }
 
   return (
     <div style={{ border: '1px solid #ccc', padding: 16, marginBottom: 16, borderRadius: 8 }}>
@@ -40,9 +76,20 @@ function TaskCard({ task }) {
       </div>
 
       <div style={{ marginTop: 12 }}>
-        {task.subtasks.map((st) => (
-          <SubtaskCard key={st.id} subtask={st} taskId={task.id} />
-        ))}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={task.subtasks.map((st) => st.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {task.subtasks.map((st) => (
+              <SubtaskCard key={st.id} subtask={st} taskId={task.id} />
+            ))}
+          </SortableContext>
+        </DndContext>
       </div>
 
       {task.tips?.length > 0 && (

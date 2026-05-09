@@ -140,6 +140,26 @@ const useTaskStore = create((set, get) => ({
     });
   },
 
+  /**
+   * Reordena subtasks dentro de una task. Recibe el array final ya ordenado
+   * (más simple que from/to indices con dnd-kit).
+   */
+  reorderSubtasks(taskId, orderedSubtaskIds) {
+    set((state) => {
+      const tasks = state.tasks.map((task) => {
+        if (task.id !== taskId) return task;
+        const byId = new Map(task.subtasks.map((st) => [st.id, st]));
+        const reordered = orderedSubtaskIds
+          .map((id) => byId.get(id))
+          .filter(Boolean)
+          .map((st, idx) => ({ ...st, order: idx + 1 }));
+        return { ...task, subtasks: reordered };
+      });
+      saveTasks(tasks);
+      return { tasks };
+    });
+  },
+
   resetSubtask(taskId, subtaskId) {
     set((state) => {
       const tasks = state.tasks.map((task) => {

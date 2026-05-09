@@ -1,9 +1,27 @@
 import { useEffect, useMemo } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import useTaskStore from '../store/taskStore.js';
 import { useTimer, formatTime } from '../hooks/useTimer.js';
 import { TASK_STATUS } from '../utils/constants.js';
 
 export function SubtaskCard({ subtask, taskId }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: subtask.id });
+
+  const dragStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    cursor: isDragging ? 'grabbing' : undefined,
+  };
+
   const {
     activeSubtask,
     startSubtask,
@@ -76,16 +94,22 @@ export function SubtaskCard({ subtask, taskId }) {
     const estMin = subtask.estimatedMinutes;
     return (
       <div
+        ref={setNodeRef}
         style={{
+          ...dragStyle,
           border: '1px solid #c3e6cb',
           background: '#f0f9f4',
           padding: 12,
           marginBottom: 8,
           borderRadius: 6,
-          opacity: 0.85,
+          opacity: isDragging ? 0.5 : 0.85,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <DragHandle attributes={attributes} listeners={listeners} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1 }}>
           <div>
             <span style={{ marginRight: 6 }}>✓</span>
             <strong style={{ textDecoration: 'line-through' }}>{subtask.title}</strong>
@@ -111,17 +135,21 @@ export function SubtaskCard({ subtask, taskId }) {
 
   return (
     <div
+      ref={setNodeRef}
       style={{
+        ...dragStyle,
         border: timer.isRunning ? '2px solid #007bff' : '1px solid #ddd',
         padding: 14,
         marginBottom: 10,
         borderRadius: 8,
         background: timer.isRunning ? '#f0f7ff' : '#fff',
-        opacity: isActiveElsewhere ? 0.6 : 1,
+        opacity: isDragging ? 0.5 : isActiveElsewhere ? 0.6 : 1,
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-        <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, flex: 1 }}>
+          <DragHandle attributes={attributes} listeners={listeners} />
+          <div style={{ flex: 1 }}>
           <strong>{subtask.title}</strong>
           <p style={{ margin: '4px 0', fontSize: '0.9em', color: '#555' }}>
             {subtask.description}
@@ -131,6 +159,7 @@ export function SubtaskCard({ subtask, taskId }) {
               Gaps: {subtask.knowledgeGaps.join(', ')}
             </small>
           )}
+          </div>
         </div>
 
         <div style={{ textAlign: 'right', minWidth: 90 }}>
@@ -215,5 +244,33 @@ export function SubtaskCard({ subtask, taskId }) {
         </small>
       )}
     </div>
+  );
+}
+
+/**
+ * Handle visible para arrastrar la card. Solo este elemento dispara el drag,
+ * para que los botones internos sigan funcionando normal.
+ */
+function DragHandle({ attributes, listeners }) {
+  return (
+    <button
+      type="button"
+      {...attributes}
+      {...listeners}
+      aria-label="Reordenar subtask"
+      title="Arrastrá para reordenar"
+      style={{
+        cursor: 'grab',
+        background: 'transparent',
+        border: 'none',
+        padding: '4px 6px',
+        color: '#999',
+        fontSize: '1.1em',
+        lineHeight: 1,
+        touchAction: 'none',
+      }}
+    >
+      ⋮⋮
+    </button>
   );
 }
