@@ -14,19 +14,16 @@ import {
 } from '@dnd-kit/sortable';
 import useTaskStore from '../store/taskStore.js';
 import { SubtaskCard } from './SubtaskCard.jsx';
+import { AddStepsInput } from './AddStepsInput.jsx';
 
 function TaskCard({ task }) {
-  const { deleteTask, setCurrentTask, getTaskProgress, reorderSubtasks } = useTaskStore();
+  const { deleteTask, getTaskProgress, reorderSubtasks } = useTaskStore();
   const progress = getTaskProgress(task.id);
+  const isDone = progress === 100;
 
-  // PointerSensor con activationConstraint evita que clicks en botones inicien drag accidental
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
   function handleDragEnd(event) {
@@ -42,40 +39,43 @@ function TaskCard({ task }) {
   }
 
   return (
-    <div style={{ border: '1px solid #ccc', padding: 16, marginBottom: 16, borderRadius: 8 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h3 style={{ margin: '0 0 4px' }}>{task.title}</h3>
-          <small>~{task.estimatedMinutes} min total | Progreso: {progress}%</small>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setCurrentTask(task.id)}>Ver</button>
-          <button onClick={() => deleteTask(task.id)} style={{ color: 'red' }}>
+    <article className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
+      <header className="p-5 sm:p-6 border-b border-stone-100">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base font-semibold text-stone-900 truncate">
+              {task.title}
+            </h3>
+            <div className="mt-1 flex items-center gap-3 text-xs text-stone-500">
+              <span>~{task.estimatedMinutes} min total</span>
+              <span aria-hidden>·</span>
+              <span>{task.subtasks.length} pasos</span>
+              <span aria-hidden>·</span>
+              <span className={isDone ? 'text-emerald-600 font-medium' : ''}>
+                {progress}% completado
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => deleteTask(task.id)}
+            className="text-xs text-stone-400 hover:text-rose-600 transition px-2 py-1"
+            title="Eliminar tarea"
+          >
             Eliminar
           </button>
         </div>
-      </div>
 
-      <div
-        style={{
-          height: 6,
-          background: '#eee',
-          borderRadius: 3,
-          margin: '12px 0',
-        }}
-      >
-        <div
-          style={{
-            height: '100%',
-            width: `${progress}%`,
-            background: progress === 100 ? 'green' : '#007bff',
-            borderRadius: 3,
-            transition: 'width 0.3s',
-          }}
-        />
-      </div>
+        <div className="mt-4 h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${
+              isDone ? 'bg-emerald-500' : 'bg-gradient-to-r from-brand-500 to-brand-600'
+            }`}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </header>
 
-      <div style={{ marginTop: 12 }}>
+      <div className="p-5 sm:p-6 space-y-2.5">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -90,43 +90,62 @@ function TaskCard({ task }) {
             ))}
           </SortableContext>
         </DndContext>
+
+        {/* Input inline para agregar más pasos */}
+        <div className="mt-3">
+          <AddStepsInput taskId={task.id} taskTitle={task.title} />
+        </div>
       </div>
 
-      {task.tips?.length > 0 && (
-        <div style={{ marginTop: 12, padding: 8, background: '#fffbe6', borderRadius: 4 }}>
-          <strong>Tip:</strong> {task.tips[0]}
-        </div>
-      )}
+      {(task.tips?.length > 0 || task.learningGaps?.length > 0) && (
+        <footer className="border-t border-stone-100 bg-stone-50/50 p-5 sm:p-6 space-y-3">
+          {task.tips?.length > 0 && (
+            <div className="flex gap-3 text-sm">
+              <span className="shrink-0 text-amber-500" aria-hidden>💡</span>
+              <p className="text-stone-700">
+                <span className="font-medium">Tip: </span>
+                {task.tips[0]}
+              </p>
+            </div>
+          )}
 
-      {task.learningGaps?.length > 0 && (
-        <div style={{ marginTop: 8 }}>
-          <small>
-            <strong>Learning gaps:</strong> {task.learningGaps.join(', ')}
-          </small>
-        </div>
+          {task.learningGaps?.length > 0 && (
+            <div className="flex gap-3 text-sm">
+              <span className="shrink-0 text-brand-500" aria-hidden>📚</span>
+              <div className="text-stone-600">
+                <span className="font-medium text-stone-700">Vas a necesitar saber: </span>
+                <span className="inline-flex flex-wrap gap-1.5 mt-1">
+                  {task.learningGaps.map((gap) => (
+                    <span
+                      key={gap}
+                      className="rounded-md bg-brand-50 text-brand-700 px-2 py-0.5 text-xs font-medium"
+                    >
+                      {gap}
+                    </span>
+                  ))}
+                </span>
+              </div>
+            </div>
+          )}
+        </footer>
       )}
-    </div>
+    </article>
   );
 }
 
+/**
+ * Muestra la tarea seleccionada (currentTaskId).
+ * La navegación entre tareas la controla el sidebar (TaskNav).
+ */
 export function TaskTree() {
-  const { tasks } = useTaskStore();
+  const { getCurrentTask } = useTaskStore();
+  const currentTask = getCurrentTask();
 
-  if (tasks.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: 32, color: '#888' }}>
-        <p>No hay tareas todavía.</p>
-        <p>Ingresá una tarea arriba para empezar.</p>
-      </div>
-    );
-  }
+  if (!currentTask) return null;
 
   return (
-    <div>
-      <h2>Tus tareas ({tasks.length})</h2>
-      {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
-      ))}
-    </div>
+    <section>
+      <TaskCard task={currentTask} />
+    </section>
   );
 }

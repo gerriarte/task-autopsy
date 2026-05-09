@@ -8,6 +8,8 @@ const useTaskStore = create((set, get) => ({
   currentTaskId: null,
   // { taskId, subtaskId } - solo una subtask puede estar activa a la vez
   activeSubtask: null,
+  // true cuando el usuario pidió crear una tarea nueva (como "New chat" en Claude)
+  isCreatingTask: false,
   isLoading: false,
   error: null,
 
@@ -33,10 +35,54 @@ const useTaskStore = create((set, get) => ({
     set((state) => {
       const tasks = [newTask, ...state.tasks];
       saveTasks(tasks);
-      return { tasks, currentTaskId: newTask.id, error: null };
+      return { tasks, currentTaskId: newTask.id, isCreatingTask: false, error: null };
     });
 
     return newTask;
+  },
+
+  startCreatingTask() {
+    set({ isCreatingTask: true, currentTaskId: null });
+  },
+
+  /**
+   * Agrega subtasks nuevas a una tarea existente (decompose-in-place).
+   * Las nuevas subtasks se insertan al final de la lista.
+   */
+  addSubtasksToTask(taskId, decomposedData) {
+    const newSubtasks = (decomposedData.subtasks || []).map((st) => ({
+      ...st,
+      id: uuidv4(),
+      status: TASK_STATUS.PENDING,
+      completedAt: null,
+      startedAt: null,
+      timeSpentSeconds: 0,
+    }));
+
+    set((state) => {
+      const tasks = state.tasks.map((task) => {
+        if (task.id !== taskId) return task;
+        const allSubtasks = [...task.subtasks, ...newSubtasks].map((st, i) => ({
+          ...st,
+          order: i + 1,
+        }));
+        return {
+          ...task,
+          subtasks: allSubtasks,
+          estimatedMinutes: task.estimatedMinutes + (decomposedData.estimatedMinutes || 0),
+          learningGaps: [
+            ...new Set([...(task.learningGaps || []), ...(decomposedData.learningGaps || [])]),
+          ],
+          tips: [
+            ...new Set([...(task.tips || []), ...(decomposedData.tips || [])]),
+          ],
+        };
+      });
+      saveTasks(tasks);
+      return { tasks, error: null };
+    });
+
+    return newSubtasks;
   },
 
   updateSubtaskStatus(taskId, subtaskId, status) {
@@ -208,7 +254,7 @@ const useTaskStore = create((set, get) => ({
   },
 
   setCurrentTask(taskId) {
-    set({ currentTaskId: taskId });
+    set({ currentTaskId: taskId, isCreatingTask: false });
   },
 
   setLoading(isLoading) {
