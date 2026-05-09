@@ -20,8 +20,24 @@ function safeSet(key, value) {
   }
 }
 
+/**
+ * Normaliza tasks viejas: agrega campos nuevos con defaults
+ * para compatibilidad con storage de versiones anteriores.
+ */
+function migrateTask(task) {
+  return {
+    ...task,
+    subtasks: (task.subtasks || []).map((st) => ({
+      timeSpentSeconds: 0,
+      startedAt: null,
+      ...st,
+    })),
+  };
+}
+
 export function loadTasks() {
-  return safeGet(STORAGE_KEY, []);
+  const raw = safeGet(STORAGE_KEY, []);
+  return Array.isArray(raw) ? raw.map(migrateTask) : [];
 }
 
 export function saveTasks(tasks) {

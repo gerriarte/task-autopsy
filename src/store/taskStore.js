@@ -6,6 +6,8 @@ import { TASK_STATUS } from '../utils/constants.js';
 const useTaskStore = create((set, get) => ({
   tasks: loadTasks(),
   currentTaskId: null,
+  // { taskId, subtaskId } - solo una subtask puede estar activa a la vez
+  activeSubtask: null,
   isLoading: false,
   error: null,
 
@@ -21,6 +23,8 @@ const useTaskStore = create((set, get) => ({
         id: uuidv4(),
         status: TASK_STATUS.PENDING,
         completedAt: null,
+        startedAt: null,
+        timeSpentSeconds: 0, // tiempo trackeado real
       })),
       learningGaps: decomposedData.learningGaps || [],
       tips: decomposedData.tips || [],
@@ -50,6 +54,117 @@ const useTaskStore = create((set, get) => ({
       });
       saveTasks(tasks);
       return { tasks };
+    });
+  },
+
+  /**
+   * Marca una subtask como activa (en progreso) y registra startedAt si es la primera vez.
+   * Solo una subtask puede estar activa global a la vez: si había otra, se pausa.
+   */
+  startSubtask(taskId, subtaskId) {
+    set((state) => {
+      const tasks = state.tasks.map((task) => {
+        if (task.id !== taskId) return task;
+        return {
+          ...task,
+          subtasks: task.subtasks.map((st) => {
+            if (st.id !== subtaskId) return st;
+            return {
+              ...st,
+              status: TASK_STATUS.IN_PROGRESS,
+              startedAt: st.startedAt || new Date().toISOString(),
+            };
+          }),
+        };
+      });
+      saveTasks(tasks);
+      return {
+        tasks,
+        activeSubtask: { taskId, subtaskId },
+      };
+    });
+  },
+
+  /**
+   * Persiste tiempo trackeado y vuelve a PENDING (sin completar).
+   */
+  pauseSubtask(taskId, subtaskId, timeSpentSeconds) {
+    set((state) => {
+      const tasks = state.tasks.map((task) => {
+        if (task.id !== taskId) return task;
+        return {
+          ...task,
+          subtasks: task.subtasks.map((st) =>
+            st.id === subtaskId
+              ? { ...st, status: TASK_STATUS.PENDING, timeSpentSeconds }
+              : st
+          ),
+        };
+      });
+      saveTasks(tasks);
+      const wasActive = state.activeSubtask?.subtaskId === subtaskId;
+      return {
+        tasks,
+        activeSubtask: wasActive ? null : state.activeSubtask,
+      };
+    });
+  },
+
+  /**
+   * Completa la subtask con tiempo real trackeado.
+   */
+  completeSubtask(taskId, subtaskId, timeSpentSeconds) {
+    set((state) => {
+      const tasks = state.tasks.map((task) => {
+        if (task.id !== taskId) return task;
+        return {
+          ...task,
+          subtasks: task.subtasks.map((st) =>
+            st.id === subtaskId
+              ? {
+                  ...st,
+                  status: TASK_STATUS.COMPLETED,
+                  completedAt: new Date().toISOString(),
+                  timeSpentSeconds,
+                }
+              : st
+          ),
+        };
+      });
+      saveTasks(tasks);
+      const wasActive = state.activeSubtask?.subtaskId === subtaskId;
+      return {
+        tasks,
+        activeSubtask: wasActive ? null : state.activeSubtask,
+      };
+    });
+  },
+
+  resetSubtask(taskId, subtaskId) {
+    set((state) => {
+      const tasks = state.tasks.map((task) => {
+        if (task.id !== taskId) return task;
+        return {
+          ...task,
+          subtasks: task.subtasks.map((st) =>
+            st.id === subtaskId
+              ? {
+                  ...st,
+                  status: TASK_STATUS.PENDING,
+                  startedAt: null,
+                  completedAt: null,
+                  timeSpentSeconds: 0,
+                }
+              : st
+          ),
+        };
+      });
+      saveTasks(tasks);
+      const wasActive = state.activeSubtask?.subtaskId === subtaskId;
+      return {
+        tasks,
+        activeSubtask: wasActive ? null : state.activeSubtask,
+      };
     });
   },
 

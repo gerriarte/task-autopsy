@@ -1,40 +1,5 @@
 import useTaskStore from '../store/taskStore.js';
-import { TASK_STATUS } from '../utils/constants.js';
-
-function SubtaskItem({ subtask, taskId }) {
-  const { updateSubtaskStatus } = useTaskStore();
-  const isCompleted = subtask.status === TASK_STATUS.COMPLETED;
-
-  function handleToggle() {
-    const nextStatus = isCompleted ? TASK_STATUS.PENDING : TASK_STATUS.COMPLETED;
-    updateSubtaskStatus(taskId, subtask.id, nextStatus);
-  }
-
-  return (
-    <li style={{ marginBottom: 8, opacity: isCompleted ? 0.6 : 1 }}>
-      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer' }}>
-        <input
-          type="checkbox"
-          checked={isCompleted}
-          onChange={handleToggle}
-          style={{ marginTop: 3 }}
-        />
-        <span>
-          <strong style={{ textDecoration: isCompleted ? 'line-through' : 'none' }}>
-            {subtask.title}
-          </strong>
-          <br />
-          <small>{subtask.description}</small>
-          <br />
-          <small>~{subtask.estimatedMinutes} min</small>
-          {subtask.knowledgeGaps?.length > 0 && (
-            <span> | Gaps: {subtask.knowledgeGaps.join(', ')}</span>
-          )}
-        </span>
-      </label>
-    </li>
-  );
-}
+import { SubtaskCard } from './SubtaskCard.jsx';
 
 function TaskCard({ task }) {
   const { deleteTask, setCurrentTask, getTaskProgress } = useTaskStore();
@@ -74,11 +39,11 @@ function TaskCard({ task }) {
         />
       </div>
 
-      <ol style={{ paddingLeft: 20, margin: 0 }}>
+      <div style={{ marginTop: 12 }}>
         {task.subtasks.map((st) => (
-          <SubtaskItem key={st.id} subtask={st} taskId={task.id} />
+          <SubtaskCard key={st.id} subtask={st} taskId={task.id} />
         ))}
-      </ol>
+      </div>
 
       {task.tips?.length > 0 && (
         <div style={{ marginTop: 12, padding: 8, background: '#fffbe6', borderRadius: 4 }}>
