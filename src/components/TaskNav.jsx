@@ -100,8 +100,24 @@ export function TaskNav() {
         </div>
       )}
 
-      {/* ── Learning Path link ── */}
-      <div className="border-t border-stone-200/60 pt-2 mt-auto">
+      {/* ── Bottom links ── */}
+      <div className="border-t border-stone-200/60 pt-2 mt-auto space-y-0.5">
+        {/* Stats / Progreso */}
+        <button
+          onClick={() => setActiveView('stats')}
+          className={`w-full flex items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium transition ${
+            activeView === 'stats'
+              ? 'bg-brand-50 text-brand-800 ring-1 ring-brand-200'
+              : 'text-stone-600 hover:bg-stone-100/70 hover:text-stone-800'
+          }`}
+        >
+          <svg viewBox="0 0 24 24" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+          </svg>
+          <span className="flex-1 text-left">Progreso</span>
+        </button>
+
+        {/* Learning Path */}
         <button
           onClick={() => setActiveView('learning')}
           className={`w-full flex items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium transition ${
@@ -176,6 +192,17 @@ export function TaskNavMobile() {
           </button>
         );
       })}
+
+      <button
+        onClick={() => setActiveView('stats')}
+        className={`shrink-0 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition whitespace-nowrap ${
+          activeView === 'stats'
+            ? 'border-brand-300 bg-brand-50 text-brand-800'
+            : 'border-stone-200 bg-white text-stone-600 hover:border-brand-300'
+        }`}
+      >
+        📊 Progreso
+      </button>
 
       <button
         onClick={() => setActiveView('learning')}

@@ -1,4 +1,4 @@
-import { TaskInput, TaskTree, TaskNav, TaskNavMobile, LearningPanel } from './components/index.js';
+import { TaskInput, TaskTree, TaskNav, TaskNavMobile, LearningPanel, StatsPanel } from './components/index.js';
 import useTaskStore from './store/taskStore.js';
 
 function App() {
@@ -7,6 +7,7 @@ function App() {
   const showInput = !hasTasks || isCreatingTask;
   const showTask = hasTasks && currentTaskId && !isCreatingTask && activeView === 'tasks';
   const showLearning = hasTasks && activeView === 'learning';
+  const showStats = hasTasks && activeView === 'stats';
 
   return (
     <div className="min-h-screen text-stone-800 antialiased flex flex-col">
@@ -56,6 +57,7 @@ function App() {
             {showInput && <TaskInput />}
             {showTask && <TaskTree />}
             {showLearning && <LearningPanel />}
+            {showStats && <StatsPanel />}
 
             {hasTasks && !currentTaskId && !isCreatingTask && activeView === 'tasks' && (
               <div className="rounded-2xl border border-dashed border-stone-300 bg-white/40 px-6 py-14 text-center">
