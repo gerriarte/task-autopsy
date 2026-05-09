@@ -3,3 +3,4 @@ export { TaskTree } from './TaskTree.jsx';
 export { SubtaskCard } from './SubtaskCard.jsx';
 export { AddStepsInput } from './AddStepsInput.jsx';
 export { TaskNav, TaskNavMobile } from './TaskNav.jsx';
+export { LearningPanel } from './LearningPanel.jsx';

@@ -1,7 +1,24 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import { loadTasks, saveTasks } from '../utils/storage.js';
+import { loadTasks, saveTasks, loadLearningPath, saveLearningPath } from '../utils/storage.js';
 import { TASK_STATUS } from '../utils/constants.js';
+
+/**
+ * Chequea si una tarea tiene todas sus subtasks completadas.
+ * Si sí, marca la tarea como COMPLETED con fecha.
+ * Si no (alguna se reabrió), la vuelve a PENDING.
+ */
+function autoCompleteTask(task) {
+  if (!task.subtasks.length) return task;
+  const allDone = task.subtasks.every((st) => st.status === TASK_STATUS.COMPLETED);
+  if (allDone && task.status !== TASK_STATUS.COMPLETED) {
+    return { ...task, status: TASK_STATUS.COMPLETED, completedAt: new Date().toISOString() };
+  }
+  if (!allDone && task.status === TASK_STATUS.COMPLETED) {
+    return { ...task, status: TASK_STATUS.PENDING, completedAt: null };
+  }
+  return task;
+}
 
 const useTaskStore = create((set, get) => ({
   tasks: loadTasks(),
@@ -10,8 +27,13 @@ const useTaskStore = create((set, get) => ({
   activeSubtask: null,
   // true cuando el usuario pidió crear una tarea nueva (como "New chat" en Claude)
   isCreatingTask: false,
+  // 'tasks' | 'learning' — vista activa en el panel principal
+  activeView: 'tasks',
   isLoading: false,
   error: null,
+
+  // Learning path curado por el usuario
+  learningPath: loadLearningPath(),
 
   addTask(decomposedData) {
     const newTask = {
@@ -42,7 +64,11 @@ const useTaskStore = create((set, get) => ({
   },
 
   startCreatingTask() {
-    set({ isCreatingTask: true, currentTaskId: null });
+    set({ isCreatingTask: true, currentTaskId: null, activeView: 'tasks' });
+  },
+
+  setActiveView(view) {
+    set({ activeView: view, isCreatingTask: false });
   },
 
   /**
@@ -163,7 +189,7 @@ const useTaskStore = create((set, get) => ({
     set((state) => {
       const tasks = state.tasks.map((task) => {
         if (task.id !== taskId) return task;
-        return {
+        const updated = {
           ...task,
           subtasks: task.subtasks.map((st) =>
             st.id === subtaskId
@@ -176,6 +202,7 @@ const useTaskStore = create((set, get) => ({
               : st
           ),
         };
+        return autoCompleteTask(updated);
       });
       saveTasks(tasks);
       const wasActive = state.activeSubtask?.subtaskId === subtaskId;
@@ -210,7 +237,7 @@ const useTaskStore = create((set, get) => ({
     set((state) => {
       const tasks = state.tasks.map((task) => {
         if (task.id !== taskId) return task;
-        return {
+        const updated = {
           ...task,
           subtasks: task.subtasks.map((st) =>
             st.id === subtaskId
@@ -224,6 +251,7 @@ const useTaskStore = create((set, get) => ({
               : st
           ),
         };
+        return autoCompleteTask(updated);
       });
       saveTasks(tasks);
       const wasActive = state.activeSubtask?.subtaskId === subtaskId;
@@ -254,7 +282,7 @@ const useTaskStore = create((set, get) => ({
   },
 
   setCurrentTask(taskId) {
-    set({ currentTaskId: taskId, isCreatingTask: false });
+    set({ currentTaskId: taskId, isCreatingTask: false, activeView: 'tasks' });
   },
 
   setLoading(isLoading) {
@@ -280,6 +308,74 @@ const useTaskStore = create((set, get) => ({
     if (!task || !task.subtasks.length) return 0;
     const completed = task.subtasks.filter((st) => st.status === TASK_STATUS.COMPLETED).length;
     return Math.round((completed / task.subtasks.length) * 100);
+  },
+
+  // ═══════════════ LEARNING PATH (curado por el usuario) ═══════════════
+
+  /**
+   * Agrega un item al learning path del usuario.
+   * @param {string} label - qué quiere aprender
+   * @param {string} [sourceTaskId] - de qué tarea viene (opcional)
+   * @param {string} [sourceTaskTitle] - título de la tarea fuente
+   */
+  addToLearningPath(label, sourceTaskId = null, sourceTaskTitle = null) {
+    set((state) => {
+      // Evitar duplicados por label
+      const exists = state.learningPath.some(
+        (item) => item.label.toLowerCase().trim() === label.toLowerCase().trim()
+      );
+      if (exists) return state;
+
+      const item = {
+        id: uuidv4(),
+        label,
+        status: 'pending', // pending | completed
+        addedAt: new Date().toISOString(),
+        completedAt: null,
+        sourceTaskId,
+        sourceTaskTitle,
+      };
+      const learningPath = [item, ...state.learningPath];
+      saveLearningPath(learningPath);
+      return { learningPath };
+    });
+  },
+
+  /**
+   * Agrega un item escrito manualmente por el usuario (sin tarea fuente).
+   */
+  addCustomLearningItem(label) {
+    get().addToLearningPath(label);
+  },
+
+  toggleLearningItem(itemId) {
+    set((state) => {
+      const learningPath = state.learningPath.map((item) => {
+        if (item.id !== itemId) return item;
+        const isDone = item.status === 'completed';
+        return {
+          ...item,
+          status: isDone ? 'pending' : 'completed',
+          completedAt: isDone ? null : new Date().toISOString(),
+        };
+      });
+      saveLearningPath(learningPath);
+      return { learningPath };
+    });
+  },
+
+  removeLearningItem(itemId) {
+    set((state) => {
+      const learningPath = state.learningPath.filter((item) => item.id !== itemId);
+      saveLearningPath(learningPath);
+      return { learningPath };
+    });
+  },
+
+  isInLearningPath(label) {
+    return get().learningPath.some(
+      (item) => item.label.toLowerCase().trim() === label.toLowerCase().trim()
+    );
   },
 }));
 

@@ -1,4 +1,4 @@
-import { STORAGE_KEY, PENDING_SYNC_KEY } from './constants.js';
+import { STORAGE_KEY, PENDING_SYNC_KEY, LEARNING_PATH_KEY } from './constants.js';
 
 function safeGet(key, fallback = null) {
   try {
@@ -26,6 +26,7 @@ function safeSet(key, value) {
  */
 function migrateTask(task) {
   return {
+    completedAt: null,
     ...task,
     subtasks: (task.subtasks || []).map((st) => ({
       timeSpentSeconds: 0,
@@ -66,4 +67,12 @@ export function addPendingSync(item) {
   const pending = loadPendingSync();
   pending.push({ ...item, queuedAt: new Date().toISOString() });
   return safeSet(PENDING_SYNC_KEY, pending);
+}
+
+export function loadLearningPath() {
+  return safeGet(LEARNING_PATH_KEY, []);
+}
+
+export function saveLearningPath(items) {
+  return safeSet(LEARNING_PATH_KEY, items);
 }

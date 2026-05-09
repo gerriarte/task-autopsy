@@ -15,9 +15,10 @@ import {
 import useTaskStore from '../store/taskStore.js';
 import { SubtaskCard } from './SubtaskCard.jsx';
 import { AddStepsInput } from './AddStepsInput.jsx';
+import { formatRelativeDate } from '../utils/dates.js';
 
 function TaskCard({ task }) {
-  const { deleteTask, getTaskProgress, reorderSubtasks } = useTaskStore();
+  const { deleteTask, getTaskProgress, reorderSubtasks, addToLearningPath, isInLearningPath } = useTaskStore();
   const progress = getTaskProgress(task.id);
   const isDone = progress === 100;
 
@@ -46,13 +47,19 @@ function TaskCard({ task }) {
             <h3 className="text-base font-semibold text-stone-900 truncate">
               {task.title}
             </h3>
-            <div className="mt-1 flex items-center gap-3 text-xs text-stone-500">
+            <div className="mt-1 flex items-center gap-3 text-xs text-stone-500 flex-wrap">
               <span>~{task.estimatedMinutes} min total</span>
               <span aria-hidden>·</span>
               <span>{task.subtasks.length} pasos</span>
               <span aria-hidden>·</span>
               <span className={isDone ? 'text-emerald-600 font-medium' : ''}>
                 {progress}% completado
+              </span>
+              <span aria-hidden>·</span>
+              <span>
+                {isDone
+                  ? `Completada ${formatRelativeDate(task.completedAt)}`
+                  : `Creada ${formatRelativeDate(task.createdAt)}`}
               </span>
             </div>
           </div>
@@ -86,7 +93,7 @@ function TaskCard({ task }) {
             strategy={verticalListSortingStrategy}
           >
             {task.subtasks.map((st) => (
-              <SubtaskCard key={st.id} subtask={st} taskId={task.id} />
+              <SubtaskCard key={st.id} subtask={st} taskId={task.id} taskTitle={task.title} />
             ))}
           </SortableContext>
         </DndContext>
@@ -113,16 +120,26 @@ function TaskCard({ task }) {
             <div className="flex gap-3 text-sm">
               <span className="shrink-0 text-brand-500" aria-hidden>📚</span>
               <div className="text-stone-600">
-                <span className="font-medium text-stone-700">Vas a necesitar saber: </span>
+                <span className="font-medium text-stone-700">Claude sugiere aprender: </span>
                 <span className="inline-flex flex-wrap gap-1.5 mt-1">
-                  {task.learningGaps.map((gap) => (
-                    <span
-                      key={gap}
-                      className="rounded-md bg-brand-50 text-brand-700 px-2 py-0.5 text-xs font-medium"
-                    >
-                      {gap}
-                    </span>
-                  ))}
+                  {task.learningGaps.map((gap) => {
+                    const alreadyAdded = isInLearningPath(gap);
+                    return (
+                      <button
+                        key={gap}
+                        onClick={() => !alreadyAdded && addToLearningPath(gap, task.id, task.title)}
+                        disabled={alreadyAdded}
+                        className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium transition ${
+                          alreadyAdded
+                            ? 'bg-emerald-50 text-emerald-600 cursor-default'
+                            : 'bg-brand-50 text-brand-700 hover:bg-brand-100 cursor-pointer'
+                        }`}
+                        title={alreadyAdded ? 'Ya está en tu Learning Path' : 'Agregar a tu Learning Path'}
+                      >
+                        {alreadyAdded ? '✓' : '+'} {gap}
+                      </button>
+                    );
+                  })}
                 </span>
               </div>
             </div>

@@ -1,5 +1,6 @@
 export const STORAGE_KEY = 'task_autopsy_tasks';
 export const PENDING_SYNC_KEY = 'task_autopsy_pending_sync';
+export const LEARNING_PATH_KEY = 'task_autopsy_learning_path';
 
 export const TASK_STATUS = {
   PENDING: 'pending',

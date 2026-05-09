@@ -5,13 +5,15 @@ import useTaskStore from '../store/taskStore.js';
 import { useTimer, formatTime } from '../hooks/useTimer.js';
 import { TASK_STATUS } from '../utils/constants.js';
 
-export function SubtaskCard({ subtask, taskId }) {
+export function SubtaskCard({ subtask, taskId, taskTitle }) {
   const {
     activeSubtask,
     startSubtask,
     pauseSubtask,
     completeSubtask,
     resetSubtask,
+    addToLearningPath,
+    isInLearningPath,
   } = useTaskStore();
 
   const {
@@ -188,17 +190,27 @@ export function SubtaskCard({ subtask, taskId }) {
             </div>
           )}
 
-          {/* Knowledge gaps */}
+          {/* Knowledge gaps — clickeables para agregar al Learning Path */}
           {subtask.knowledgeGaps?.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
-              {subtask.knowledgeGaps.map((gap) => (
-                <span
-                  key={gap}
-                  className="inline-flex items-center rounded-md bg-stone-100 px-1.5 py-0.5 text-[10px] font-medium text-stone-600"
-                >
-                  {gap}
-                </span>
-              ))}
+              {subtask.knowledgeGaps.map((gap) => {
+                const added = isInLearningPath(gap);
+                return (
+                  <button
+                    key={gap}
+                    onClick={() => !added && addToLearningPath(gap, taskId, taskTitle)}
+                    disabled={added}
+                    className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium transition ${
+                      added
+                        ? 'bg-emerald-50 text-emerald-600 cursor-default'
+                        : 'bg-stone-100 text-stone-600 hover:bg-brand-50 hover:text-brand-700 cursor-pointer'
+                    }`}
+                    title={added ? 'En tu Learning Path' : 'Agregar al Learning Path'}
+                  >
+                    {added ? '✓' : '+'} {gap}
+                  </button>
+                );
+              })}
             </div>
           )}
 
