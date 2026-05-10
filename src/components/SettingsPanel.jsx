@@ -502,6 +502,180 @@ function WebhookSection() {
           Cada evento envía un POST con JSON: {"{"} event, timestamp, data {"}"}. Compatible con Zapier, Make, n8n, y cualquier endpoint HTTP.
         </p>
       </div>
+
+      {/* ── Guía de configuración ── */}
+      <WebhookGuide />
+    </div>
+  );
+}
+
+/**
+ * Guía paso a paso para configurar webhooks con Zapier, Make y n8n.
+ * Colapsable para no ocupar espacio si el usuario ya sabe.
+ */
+function WebhookGuide() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-xl border border-stone-200 bg-stone-50/50 mt-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-3 text-xs font-medium text-stone-600 hover:text-stone-800 transition"
+      >
+        <span className="flex items-center gap-2">
+          <svg viewBox="0 0 20 20" className="size-4 text-violet-500" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+          </svg>
+          Como configurar un webhook
+        </span>
+        <svg
+          viewBox="0 0 20 20"
+          className={`size-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          fill="currentColor"
+        >
+          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 space-y-4">
+          {/* ── Zapier ── */}
+          <GuideBlock
+            title="Zapier"
+            color="amber"
+            link="https://zapier.com/apps/webhook/integrations"
+            steps={[
+              'Creá un nuevo Zap y elegí "Webhooks by Zapier" como trigger.',
+              'Seleccioná "Catch Hook" como evento.',
+              'Zapier te da una URL tipo: https://hooks.zapier.com/hooks/catch/123/abc/',
+              'Copiá esa URL y pegala arriba en "Webhook URL".',
+              'Hacé click en "Probar webhook" para enviar un test.',
+              'Volvé a Zapier y clickeá "Test trigger" — deberia ver el payload.',
+              'Agregá la acción que quieras: Google Sheets, Slack, ClickUp, etc.',
+            ]}
+          />
+
+          {/* ── Make ── */}
+          <GuideBlock
+            title="Make (ex Integromat)"
+            color="violet"
+            link="https://www.make.com/en/integrations/webhook"
+            steps={[
+              'Creá un nuevo Scenario y agregá el modulo "Webhooks > Custom webhook".',
+              'Clickeá "Add" para crear un nuevo webhook — Make genera una URL.',
+              'Copiá la URL y pegala arriba en "Webhook URL".',
+              'Hacé click en "Probar webhook" en Task Autopsy.',
+              'En Make, clickeá "Re-determine data structure" para mapear los campos.',
+              'Conectá los modulos que necesites: Google Sheets, Notion, Slack, etc.',
+            ]}
+          />
+
+          {/* ── n8n ── */}
+          <GuideBlock
+            title="n8n (self-hosted)"
+            color="emerald"
+            link="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/"
+            steps={[
+              'Creá un nuevo Workflow y agregá un nodo "Webhook".',
+              'Configurá el metodo como POST y elegí una ruta (ej: /task-autopsy).',
+              'Activá el workflow — n8n te muestra la URL de produccion.',
+              'Copiá la URL y pegala arriba en "Webhook URL".',
+              'Probá la conexion desde Task Autopsy.',
+              'Agregá los nodos que necesites despues del webhook.',
+            ]}
+          />
+
+          {/* ── Google Sheets directo ── */}
+          <GuideBlock
+            title="Google Sheets (via Zapier/Make)"
+            color="brand"
+            link="https://zapier.com/apps/google-sheets/integrations/webhook"
+            steps={[
+              'Seguí la guía de Zapier o Make de arriba.',
+              'Como accion, elegí "Google Sheets > Create Spreadsheet Row".',
+              'Conectá tu cuenta de Google y elegí la hoja.',
+              'Mapeá los campos: Tarea = data.taskTitle, Subtask = data.subtaskTitle, etc.',
+              'Cada vez que completes una subtask, se agrega una fila automaticamente.',
+            ]}
+          />
+
+          {/* ── Payload reference ── */}
+          <div className="rounded-lg border border-stone-200 bg-white p-3">
+            <h4 className="text-[11px] font-semibold text-stone-700 mb-2">Referencia del payload</h4>
+            <div className="rounded-md bg-stone-900 text-stone-100 p-3 text-[10px] font-mono leading-relaxed overflow-x-auto">
+              <pre>{`{
+  "event": "subtask.completed",
+  "timestamp": "2026-05-09T14:30:00.000Z",
+  "source": "Task Autopsy",
+  "data": {
+    "taskId": "abc-123",
+    "taskTitle": "Disenar landing page",
+    "subtaskId": "def-456",
+    "subtaskTitle": "Armar wireframe mobile",
+    "timeSpentSeconds": 1200,
+    "estimatedMinutes": 20
+  }
+}`}</pre>
+            </div>
+            <div className="mt-2 space-y-1">
+              <PayloadField name="event" values="task.created | task.completed | subtask.completed" />
+              <PayloadField name="data.taskTitle" values="Nombre de la tarea principal" />
+              <PayloadField name="data.subtaskTitle" values="Nombre de la subtask (solo en subtask.completed)" />
+              <PayloadField name="data.timeSpentSeconds" values="Tiempo real en segundos (solo en subtask.completed)" />
+              <PayloadField name="data.estimatedMinutes" values="Tiempo estimado por la AI en minutos" />
+              <PayloadField name="data.subtaskCount" values="Cantidad de subtasks (solo en task.created y task.completed)" />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GuideBlock({ title, color, link, steps }) {
+  const dotColors = {
+    amber: 'bg-amber-500',
+    violet: 'bg-violet-500',
+    emerald: 'bg-emerald-500',
+    brand: 'bg-brand-500',
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <h4 className="text-[11px] font-semibold text-stone-700 flex items-center gap-1.5">
+          <span className={`size-2 rounded-full ${dotColors[color]}`} />
+          {title}
+        </h4>
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] font-medium text-violet-600 hover:text-violet-800 transition"
+        >
+          Ir a {title.split(' ')[0]} →
+        </a>
+      </div>
+      <ol className="space-y-1.5 ml-1">
+        {steps.map((step, i) => (
+          <li key={i} className="flex gap-2 text-[11px] text-stone-600 leading-relaxed">
+            <span className="shrink-0 size-4 rounded-full bg-stone-200 text-stone-500 grid place-items-center text-[9px] font-bold mt-0.5">
+              {i + 1}
+            </span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function PayloadField({ name, values }) {
+  return (
+    <div className="flex gap-2 text-[10px]">
+      <code className="font-mono text-violet-600 shrink-0">{name}</code>
+      <span className="text-stone-400">—</span>
+      <span className="text-stone-500">{values}</span>
     </div>
   );
 }
