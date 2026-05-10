@@ -6,3 +6,4 @@ export { TaskNav, TaskNavMobile } from './TaskNav.jsx';
 export { LearningPanel } from './LearningPanel.jsx';
 export { StatsPanel } from './StatsPanel.jsx';
 export { SettingsPanel } from './SettingsPanel.jsx';
+export { FocusMode } from './FocusMode.jsx';

@@ -1,11 +1,13 @@
-import { useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useTaskStore from '../store/taskStore.js';
 import { useTimer, formatTime } from '../hooks/useTimer.js';
 import { TASK_STATUS } from '../utils/constants.js';
+import { FocusMode } from './FocusMode.jsx';
 
 export function SubtaskCard({ subtask, taskId, taskTitle }) {
+  const [showFocus, setShowFocus] = useState(false);
   const {
     activeSubtask,
     startSubtask,
@@ -253,6 +255,25 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
               <CheckIcon /> Listo
             </button>
 
+            {/* Focus mode button */}
+            {!isCompleted && (
+              <button
+                onClick={() => {
+                  // Pause the card's own timer — FocusMode will take over
+                  if (timer.isRunning) {
+                    timer.pause();
+                    pauseSubtask(taskId, subtask.id, elapsedTotal);
+                  }
+                  setShowFocus(true);
+                }}
+                disabled={isActiveElsewhere}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                title="Modo sin distracciones"
+              >
+                <FocusIcon /> Foco
+              </button>
+            )}
+
             {timer.hasStarted && (
               <button
                 onClick={handleReset}
@@ -263,6 +284,23 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
               </button>
             )}
           </div>
+
+          {/* Focus mode overlay */}
+          {showFocus && (
+            <FocusMode
+              taskId={taskId}
+              subtask={subtask}
+              taskTitle={taskTitle}
+              onExit={() => {
+                setShowFocus(false);
+                // Re-sync the card timer with the store's updated timeSpentSeconds
+                // The FocusMode already saved to store via pause/complete, so
+                // the card will re-render with fresh subtask.timeSpentSeconds
+                // and its own startingSeconds memo will recalculate
+                timer.reset(Math.max(0, totalSeconds - (subtask.timeSpentSeconds || 0)));
+              }}
+            />
+          )}
 
           {isActiveElsewhere && (
             <p className="mt-2 text-[11px] text-amber-700 bg-amber-50 px-2 py-1 rounded">
@@ -316,6 +354,14 @@ function CheckIcon() {
   return (
     <svg viewBox="0 0 20 20" className="size-3" fill="none" stroke="currentColor" strokeWidth="3">
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 10l4 4 8-8" />
+    </svg>
+  );
+}
+function FocusIcon() {
+  return (
+    <svg viewBox="0 0 20 20" className="size-3" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="10" cy="10" r="3" />
+      <path strokeLinecap="round" d="M10 3v2M10 15v2M3 10h2M15 10h2" />
     </svg>
   );
 }
