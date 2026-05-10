@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { loadTasks, saveTasks, loadLearningPath, saveLearningPath } from '../utils/storage.js';
 import { TASK_STATUS } from '../utils/constants.js';
+import { fireWebhook, WEBHOOK_EVENTS } from '../utils/webhook.js';
 
 /**
  * Chequea si una tarea tiene todas sus subtasks completadas.
@@ -58,6 +59,14 @@ const useTaskStore = create((set, get) => ({
       const tasks = [newTask, ...state.tasks];
       saveTasks(tasks);
       return { tasks, currentTaskId: newTask.id, isCreatingTask: false, error: null };
+    });
+
+    // Webhook: tarea creada
+    fireWebhook(WEBHOOK_EVENTS.TASK_CREATED, {
+      taskId: newTask.id,
+      title: newTask.title,
+      subtaskCount: newTask.subtasks.length,
+      estimatedMinutes: newTask.estimatedMinutes,
     });
 
     return newTask;
@@ -206,6 +215,31 @@ const useTaskStore = create((set, get) => ({
       });
       saveTasks(tasks);
       const wasActive = state.activeSubtask?.subtaskId === subtaskId;
+
+      // Webhook: subtask completada
+      const task = tasks.find((t) => t.id === taskId);
+      const subtask = task?.subtasks.find((st) => st.id === subtaskId);
+      if (task && subtask) {
+        fireWebhook(WEBHOOK_EVENTS.SUBTASK_COMPLETED, {
+          taskId,
+          taskTitle: task.title,
+          subtaskId,
+          subtaskTitle: subtask.title,
+          timeSpentSeconds,
+          estimatedMinutes: subtask.estimatedMinutes,
+        });
+      }
+      // Webhook: tarea completada (si todas las subtasks están hechas)
+      if (task?.status === TASK_STATUS.COMPLETED) {
+        fireWebhook(WEBHOOK_EVENTS.TASK_COMPLETED, {
+          taskId,
+          title: task.title,
+          subtaskCount: task.subtasks.length,
+          estimatedMinutes: task.estimatedMinutes,
+          completedAt: task.completedAt,
+        });
+      }
+
       return {
         tasks,
         activeSubtask: wasActive ? null : state.activeSubtask,

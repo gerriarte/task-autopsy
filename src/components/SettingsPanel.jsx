@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { PROVIDERS, PROVIDER_IDS, DEFAULT_PROVIDER } from '../utils/providers.js';
 import { loadApiConfig, saveApiConfig, clearApiConfig, callClaudeAPI } from '../utils/api.js';
+import { downloadCSV, downloadJSON } from '../utils/export.js';
+import { loadWebhookConfig, saveWebhookConfig, clearWebhookConfig, testWebhook, WEBHOOK_EVENTS } from '../utils/webhook.js';
+import useTaskStore from '../store/taskStore.js';
 
 export function SettingsPanel() {
   const [config, setConfig] = useState(() => {
@@ -239,7 +242,267 @@ export function SettingsPanel() {
           linkLabel="Obtener key"
         />
       </div>
+
+      {/* ═══════════════ EXPORT ═══════════════ */}
+      <ExportSection />
+
+      {/* ═══════════════ WEBHOOKS ═══════════════ */}
+      <WebhookSection />
     </section>
+  );
+}
+
+/**
+ * Sección de Export CSV/JSON
+ */
+function ExportSection() {
+  const { tasks, learningPath } = useTaskStore();
+  const hasTasks = tasks.length > 0;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="size-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 grid place-items-center text-white">
+          <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-stone-900">Exportar datos</h2>
+          <p className="text-xs text-stone-500">
+            Descargá tus tareas como CSV (para Sheets) o JSON (backup completo).
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 flex-wrap">
+        <button
+          onClick={() => downloadCSV(tasks)}
+          disabled={!hasTasks}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-800 hover:bg-emerald-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+        >
+          <svg viewBox="0 0 20 20" className="size-3.5" fill="currentColor">
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          Exportar CSV
+        </button>
+
+        <button
+          onClick={() => downloadJSON(tasks, learningPath)}
+          disabled={!hasTasks}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+        >
+          <svg viewBox="0 0 20 20" className="size-3.5" fill="currentColor">
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          Exportar JSON
+        </button>
+
+        {!hasTasks && (
+          <span className="text-[10px] text-stone-400">Creá una tarea primero</span>
+        )}
+      </div>
+
+      <p className="text-[10px] text-stone-400 mt-3">
+        El CSV se puede abrir directo en Google Sheets, Excel o importar en ClickUp.
+        El JSON incluye toda tu data (tareas + learning path) como backup.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Sección de Webhooks
+ */
+function WebhookSection() {
+  const [webhook, setWebhook] = useState(() => {
+    const saved = loadWebhookConfig();
+    return saved || { url: '', enabled: false, events: Object.values(WEBHOOK_EVENTS) };
+  });
+  const [webhookSaved, setWebhookSaved] = useState(false);
+  const [webhookTesting, setWebhookTesting] = useState(false);
+  const [webhookTestResult, setWebhookTestResult] = useState(null); // { ok, error?, warning? } | null
+
+  function handleWebhookSave() {
+    if (!webhook.url.trim()) return;
+    const toSave = {
+      url: webhook.url.trim(),
+      enabled: webhook.enabled,
+      events: webhook.events,
+    };
+    saveWebhookConfig(toSave);
+    setWebhookSaved(true);
+    setTimeout(() => setWebhookSaved(false), 2000);
+  }
+
+  async function handleWebhookTest() {
+    if (!webhook.url.trim()) return;
+    setWebhookTesting(true);
+    setWebhookTestResult(null);
+    const result = await testWebhook(webhook.url.trim());
+    setWebhookTestResult(result);
+    setWebhookTesting(false);
+  }
+
+  function handleWebhookClear() {
+    clearWebhookConfig();
+    setWebhook({ url: '', enabled: false, events: Object.values(WEBHOOK_EVENTS) });
+    setWebhookTestResult(null);
+    setWebhookSaved(false);
+  }
+
+  function toggleEvent(event) {
+    setWebhook((prev) => {
+      const events = prev.events.includes(event)
+        ? prev.events.filter((e) => e !== event)
+        : [...prev.events, event];
+      return { ...prev, events };
+    });
+    setWebhookSaved(false);
+  }
+
+  const eventLabels = {
+    [WEBHOOK_EVENTS.TASK_CREATED]: 'Tarea creada',
+    [WEBHOOK_EVENTS.TASK_COMPLETED]: 'Tarea completada',
+    [WEBHOOK_EVENTS.SUBTASK_COMPLETED]: 'Subtask completada',
+  };
+
+  const hasWebhookConfig = !!loadWebhookConfig()?.url;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="size-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 grid place-items-center text-white">
+          <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-stone-900">Webhooks</h2>
+          <p className="text-xs text-stone-500">
+            Conectá con Zapier, Make, n8n o cualquier herramienta para automatizar.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {/* ── URL ── */}
+        <div>
+          <label className="block text-xs font-medium text-stone-700 mb-1.5">Webhook URL</label>
+          <input
+            type="url"
+            value={webhook.url}
+            onChange={(e) => {
+              setWebhook({ ...webhook, url: e.target.value });
+              setWebhookSaved(false);
+              setWebhookTestResult(null);
+            }}
+            placeholder="https://hooks.zapier.com/hooks/catch/..."
+            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-mono placeholder:text-stone-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition"
+          />
+        </div>
+
+        {/* ── Eventos ── */}
+        <div>
+          <label className="block text-xs font-medium text-stone-700 mb-2">Eventos</label>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(eventLabels).map(([event, label]) => {
+              const isOn = webhook.events.includes(event);
+              return (
+                <button
+                  key={event}
+                  onClick={() => toggleEvent(event)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    isOn
+                      ? 'border-violet-300 bg-violet-50 text-violet-800'
+                      : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300'
+                  }`}
+                >
+                  {isOn && <span className="mr-1">✓</span>}
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Enabled toggle ── */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              setWebhook({ ...webhook, enabled: !webhook.enabled });
+              setWebhookSaved(false);
+            }}
+            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
+              webhook.enabled ? 'bg-violet-600' : 'bg-stone-200'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block size-4 rounded-full bg-white shadow transform transition-transform duration-200 ${
+                webhook.enabled ? 'translate-x-4' : 'translate-x-0'
+              }`}
+            />
+          </button>
+          <span className="text-xs text-stone-600">
+            {webhook.enabled ? 'Webhooks activos' : 'Webhooks desactivados'}
+          </span>
+        </div>
+
+        {/* ── Actions ── */}
+        <div className="flex items-center gap-2 flex-wrap pt-1">
+          <button
+            onClick={handleWebhookSave}
+            disabled={!webhook.url.trim()}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          >
+            {webhookSaved ? '✓ Guardado' : 'Guardar webhook'}
+          </button>
+
+          <button
+            onClick={handleWebhookTest}
+            disabled={!webhook.url.trim() || webhookTesting}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          >
+            {webhookTesting ? (
+              <>
+                <svg className="animate-spin size-3" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Probando...
+              </>
+            ) : 'Probar webhook'}
+          </button>
+
+          {hasWebhookConfig && (
+            <button
+              onClick={handleWebhookClear}
+              className="ml-auto text-xs text-stone-400 hover:text-rose-600 transition"
+            >
+              Borrar webhook
+            </button>
+          )}
+        </div>
+
+        {/* ── Test result ── */}
+        {webhookTestResult?.ok && (
+          <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs text-emerald-800 flex items-center gap-2">
+            <span className="size-4 rounded-full bg-emerald-500 text-white grid place-items-center text-[10px] font-bold">✓</span>
+            {webhookTestResult.warning || 'Webhook enviado correctamente'}
+          </div>
+        )}
+        {webhookTestResult && !webhookTestResult.ok && (
+          <div className="rounded-lg bg-rose-50 border border-rose-200 px-3 py-2 text-xs text-rose-800 flex items-center gap-2">
+            <span className="size-4 rounded-full bg-rose-500 text-white grid place-items-center text-[10px] font-bold">!</span>
+            Error: {webhookTestResult.error}
+          </div>
+        )}
+
+        <p className="text-[10px] text-stone-400">
+          Cada evento envía un POST con JSON: {"{"} event, timestamp, data {"}"}. Compatible con Zapier, Make, n8n, y cualquier endpoint HTTP.
+        </p>
+      </div>
+    </div>
   );
 }
 
