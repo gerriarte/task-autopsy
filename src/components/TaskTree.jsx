@@ -40,7 +40,7 @@ function TaskCard({ task }) {
   }
 
   return (
-    <article className="rounded-2xl border border-zen-200 bg-white overflow-hidden">
+    <article className="zen-card overflow-hidden">
       {/* Header — clean, breathing */}
       <header className="p-5 sm:p-6 border-b border-zen-100">
         <div className="flex items-start justify-between gap-4">

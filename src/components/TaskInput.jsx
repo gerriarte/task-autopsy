@@ -22,7 +22,7 @@ export function TaskInput() {
   }
 
   return (
-    <section className="rounded-2xl border border-zen-200 bg-white">
+    <section className="zen-card">
       <div className="p-5 sm:p-6">
         {!hasTasks ? (
           <>
@@ -47,7 +47,7 @@ export function TaskInput() {
             rows={hasTasks ? 2 : 3}
             disabled={isLoading}
             autoFocus={hasTasks}
-            className="w-full resize-y rounded-xl border border-zen-200 bg-zen-50/50 px-4 py-3 text-sm text-zen-900 placeholder:text-zen-400 focus:bg-white focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="w-full resize-y rounded-xl border border-zen-200 bg-zen-50 px-4 py-3 text-sm text-zen-900 placeholder:text-zen-400 focus:bg-[#fffef9] focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/15 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           />
 
           <div className="flex items-center justify-between gap-3">

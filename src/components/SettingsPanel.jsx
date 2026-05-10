@@ -82,7 +82,7 @@ export function SettingsPanel() {
 
   return (
     <section className="space-y-5">
-      <div className="rounded-2xl border border-zen-200 bg-white p-5">
+      <div className="zen-card p-5">
         <div className="flex items-center gap-3 mb-5">
           <div className="size-9 rounded-xl bg-gradient-to-br from-stone-600 to-stone-800 grid place-items-center text-white">
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -113,7 +113,7 @@ export function SettingsPanel() {
                     className={`rounded-xl border p-3 text-center transition ${
                       isActive
                         ? 'border-brand-300 bg-brand-50 ring-1 ring-brand-200'
-                        : 'border-zen-200 bg-white hover:border-zen-300'
+                        : 'border-zen-200 bg-[#fffef9] hover:border-zen-300'
                     }`}
                   >
                     <div className={`text-sm font-medium ${isActive ? 'text-brand-800' : 'text-zen-700'}`}>
@@ -134,7 +134,7 @@ export function SettingsPanel() {
             <select
               value={config.model || provider.defaultModel}
               onChange={(e) => setConfig({ ...config, model: e.target.value })}
-              className="w-full rounded-lg border border-zen-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
+              className="w-full rounded-lg border border-zen-300 bg-[#fffef9] px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
             >
               {provider.models.map((m) => (
                 <option key={m.id} value={m.id}>{m.label}</option>
@@ -155,7 +155,7 @@ export function SettingsPanel() {
                   setTestResult(null);
                 }}
                 placeholder={provider.placeholder}
-                className="w-full rounded-lg border border-zen-300 bg-white px-3 py-2 pr-20 text-sm font-mono placeholder:text-zen-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
+                className="w-full rounded-lg border border-zen-300 bg-[#fffef9] px-3 py-2 pr-20 text-sm font-mono placeholder:text-zen-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
               />
               <button
                 onClick={() => setShowKey(!showKey)}
@@ -182,7 +182,7 @@ export function SettingsPanel() {
             <button
               onClick={handleTest}
               disabled={!config.apiKey.trim() || testing}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-white px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-[#fffef9] px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               {testing ? (
                 <>
@@ -260,7 +260,7 @@ function ExportSection() {
   const hasTasks = tasks.length > 0;
 
   return (
-    <div className="rounded-2xl border border-zen-200 bg-white p-5">
+    <div className="zen-card p-5">
       <div className="flex items-center gap-3 mb-4">
         <div className="size-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 grid place-items-center text-white">
           <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -290,7 +290,7 @@ function ExportSection() {
         <button
           onClick={() => downloadJSON(tasks, learningPath)}
           disabled={!hasTasks}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-white px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-[#fffef9] px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
           <svg viewBox="0 0 20 20" className="size-3.5" fill="currentColor">
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -370,7 +370,7 @@ function WebhookSection() {
   const hasWebhookConfig = !!loadWebhookConfig()?.url;
 
   return (
-    <div className="rounded-2xl border border-zen-200 bg-white p-5">
+    <div className="zen-card p-5">
       <div className="flex items-center gap-3 mb-5">
         <div className="size-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 grid place-items-center text-white">
           <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -398,7 +398,7 @@ function WebhookSection() {
               setWebhookTestResult(null);
             }}
             placeholder="https://hooks.zapier.com/hooks/catch/..."
-            className="w-full rounded-lg border border-zen-300 bg-white px-3 py-2 text-sm font-mono placeholder:text-zen-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition"
+            className="w-full rounded-lg border border-zen-300 bg-[#fffef9] px-3 py-2 text-sm font-mono placeholder:text-zen-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition"
           />
         </div>
 
@@ -415,7 +415,7 @@ function WebhookSection() {
                   className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                     isOn
                       ? 'border-violet-300 bg-violet-50 text-violet-800'
-                      : 'border-zen-200 bg-white text-zen-500 hover:border-zen-300'
+                      : 'border-zen-200 bg-[#fffef9] text-zen-500 hover:border-zen-300'
                   }`}
                 >
                   {isOn && <span className="mr-1">✓</span>}
@@ -438,7 +438,7 @@ function WebhookSection() {
             }`}
           >
             <span
-              className={`pointer-events-none inline-block size-4 rounded-full bg-white shadow transform transition-transform duration-200 ${
+              className={`pointer-events-none inline-block size-4 rounded-full bg-[#fffef9] shadow transform transition-transform duration-200 ${
                 webhook.enabled ? 'translate-x-4' : 'translate-x-0'
               }`}
             />
@@ -461,7 +461,7 @@ function WebhookSection() {
           <button
             onClick={handleWebhookTest}
             disabled={!webhook.url.trim() || webhookTesting}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-white px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-[#fffef9] px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
             {webhookTesting ? (
               <>
@@ -600,7 +600,7 @@ function WebhookGuide() {
           />
 
           {/* ── Payload reference ── */}
-          <div className="rounded-lg border border-zen-200 bg-white p-3">
+          <div className="rounded-lg border border-zen-200 bg-[#fffef9] p-3">
             <h4 className="text-[11px] font-semibold text-zen-700 mb-2">Referencia del payload</h4>
             <div className="rounded-md bg-zen-900 text-zen-100 p-3 text-[10px] font-mono leading-relaxed overflow-x-auto">
               <pre>{`{
@@ -682,7 +682,7 @@ function PayloadField({ name, values }) {
 
 function InfoCard({ title, desc, link, linkLabel }) {
   return (
-    <div className="rounded-xl border border-zen-200 bg-white p-3.5">
+    <div className="rounded-xl border border-zen-200 bg-[#fffef9] p-3.5">
       <h4 className="text-xs font-semibold text-zen-800">{title}</h4>
       <p className="text-[10px] text-zen-500 mt-0.5">{desc}</p>
       <a

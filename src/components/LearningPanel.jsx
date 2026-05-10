@@ -15,7 +15,7 @@ export function LearningPanel() {
   return (
     <section className="space-y-5">
       {/* ── Header ── */}
-      <div className="rounded-2xl border border-zen-200 bg-white p-5">
+      <div className="zen-card p-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="size-9 rounded-xl bg-amber-100 grid place-items-center">
             <svg viewBox="0 0 24 24" className="size-5 text-amber-600" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -118,7 +118,7 @@ function AddLearningInput({ value, onChange, onClear }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Ej: Aprender a escribir copy de ventas..."
-        className="flex-1 rounded-lg border border-zen-200 bg-zen-50/50 px-3 py-2 text-sm placeholder:text-zen-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/10 transition-all duration-200"
+        className="flex-1 rounded-lg border border-zen-200 bg-zen-50 px-3 py-2 text-sm placeholder:text-zen-400 focus:border-brand-400 focus:bg-[#fffef9] focus:outline-none focus:ring-2 focus:ring-brand-500/15 transition-all duration-200"
       />
       <button
         type="submit"
@@ -138,7 +138,7 @@ function LearningItem({ item, onToggle, onRemove, onGoToTask }) {
     <div className={`flex items-start gap-3 rounded-xl border p-3.5 group transition-all duration-200 ${
       isDone
         ? 'border-emerald-100/60 bg-emerald-50/30'
-        : 'border-zen-200 bg-white hover:border-zen-300'
+        : 'border-zen-200 bg-[#fffef9] hover:border-zen-300'
     }`}>
       {/* Checkbox */}
       <button

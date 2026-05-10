@@ -10,7 +10,7 @@ export function StatsPanel() {
   return (
     <section className="space-y-5">
       {/* ── Header ── */}
-      <div className="rounded-2xl border border-zen-200 bg-white p-5">
+      <div className="zen-card p-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="size-9 rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 grid place-items-center text-white">
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -59,7 +59,7 @@ export function StatsPanel() {
 
       {/* ── Detalle de accuracy ── */}
       {stats.accuracy !== null && (
-        <div className="rounded-xl border border-zen-200 bg-white p-4">
+        <div className="zen-card-flat p-4">
           <h3 className="text-xs font-semibold text-zen-700 mb-3">Estimado vs Real</h3>
           <div className="flex items-center gap-4">
             <div className="flex-1">
@@ -150,7 +150,7 @@ function StreakWeek({ streak }) {
   }
 
   return (
-    <div className="rounded-xl border border-zen-200 bg-white p-4">
+    <div className="zen-card-flat p-4">
       <h3 className="text-xs font-semibold text-zen-700 mb-3">Últimos 7 días</h3>
       <div className="flex justify-between gap-1.5">
         {days.map((day, i) => (
@@ -195,7 +195,7 @@ function TodayView({ items, onGoToTask }) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zen-300 bg-white/40 p-6 text-center">
+      <div className="rounded-xl border border-dashed border-zen-300 bg-[#fffef9]/60 p-6 text-center">
         <p className="text-sm font-medium text-zen-700">¡Todo al día!</p>
         <p className="text-xs text-zen-400 mt-1">No hay subtasks pendientes. Creá una nueva tarea.</p>
       </div>
@@ -203,7 +203,7 @@ function TodayView({ items, onGoToTask }) {
   }
 
   return (
-    <div className="rounded-xl border border-zen-200 bg-white p-4 space-y-3">
+    <div className="zen-card-flat p-4 space-y-3">
       <h3 className="text-xs font-semibold text-zen-700">¿Qué hago ahora?</h3>
 
       {inProgress.length > 0 && (
@@ -267,7 +267,7 @@ function CompletedTasksList({ tasks, onGoToTask }) {
   if (completedTasks.length === 0 && inProgressTasks.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-zen-200 bg-white p-4 space-y-4">
+    <div className="zen-card-flat p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold text-zen-700">Tiempos por tarea</h3>
         <span className="text-[10px] text-zen-400">

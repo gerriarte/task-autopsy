@@ -153,10 +153,10 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
   const bgClass = timer.isRunning
     ? isOvertime
       ? 'bg-amber-50/30'
-      : 'bg-white'
+      : 'bg-[#fffef9]'
     : isPaused
     ? 'bg-amber-50/20'
-    : 'bg-white';
+    : 'bg-[#fffef9]';
 
   const cardClass = [
     'rounded-xl border p-4 transition-all duration-300',

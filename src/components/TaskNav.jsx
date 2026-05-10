@@ -167,7 +167,7 @@ export function TaskNavMobile() {
         className={`shrink-0 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors duration-200 whitespace-nowrap ${
           isCreatingTask
             ? 'border-brand-200 bg-brand-50 text-brand-700'
-            : 'border-zen-200 bg-white text-zen-600 hover:border-zen-300'
+            : 'border-zen-200 bg-[#fffef9] text-zen-600 hover:border-zen-300'
         }`}
       >
         <svg viewBox="0 0 20 20" className="size-3" fill="currentColor">
@@ -190,7 +190,7 @@ export function TaskNavMobile() {
                 ? 'border-brand-200 bg-brand-50 text-brand-800'
                 : isDone
                 ? 'border-emerald-200/60 bg-emerald-50/30 text-emerald-700'
-                : 'border-zen-200 bg-white text-zen-600 hover:border-zen-300'
+                : 'border-zen-200 bg-[#fffef9] text-zen-600 hover:border-zen-300'
             }`}
           >
             <span
@@ -219,8 +219,8 @@ function MobileNavPill({ label, active, onClick, badge, muted }) {
         active
           ? 'border-brand-200 bg-brand-50 text-brand-800'
           : muted
-          ? 'border-zen-200 bg-white text-zen-400 hover:border-zen-300'
-          : 'border-zen-200 bg-white text-zen-600 hover:border-zen-300'
+          ? 'border-zen-200 bg-[#fffef9] text-zen-400 hover:border-zen-300'
+          : 'border-zen-200 bg-[#fffef9] text-zen-600 hover:border-zen-300'
       }`}
     >
       {label}

@@ -14,11 +14,11 @@ function App() {
 
   return (
     <div className="min-h-screen text-zen-800 antialiased flex flex-col">
-      {/* ── Header — minimal, breathable ── */}
-      <header className="sticky top-0 z-20 border-b border-zen-200/60 bg-zen-50/90 backdrop-blur-lg shrink-0">
+      {/* ── Header — warm parchment, distinct ── */}
+      <header className="sticky top-0 z-20 border-b border-zen-300/60 bg-[#fffef9]/95 backdrop-blur-lg shrink-0 shadow-[0_1px_3px_rgb(26_22_16/0.05)]">
         <div className="px-5 lg:px-8 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="size-8 rounded-lg bg-brand-600 grid place-items-center text-white font-bold text-sm tracking-tight">
+            <div className="size-8 rounded-lg bg-brand-700 grid place-items-center text-white font-bold text-sm tracking-tight shadow-sm">
               T
             </div>
             <div>
@@ -61,9 +61,9 @@ function App() {
       {/* ── Body ── */}
       <div className="flex flex-1 overflow-hidden">
 
-        {/* ── Sidebar (lg+) — quiet, recessive ── */}
+        {/* ── Sidebar (lg+) — warm, recessive ── */}
         {hasTasks && (
-          <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-zen-200/50 bg-zen-100/40 overflow-y-auto">
+          <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-zen-300/50 bg-zen-100/70 overflow-y-auto">
             <div className="p-3.5 flex-1 flex flex-col">
               <TaskNav />
             </div>
