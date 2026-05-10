@@ -10,7 +10,7 @@ export function StatsPanel() {
   return (
     <section className="space-y-5">
       {/* ── Header ── */}
-      <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+      <div className="rounded-2xl border border-zen-200 bg-white p-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="size-9 rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 grid place-items-center text-white">
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -18,8 +18,8 @@ export function StatsPanel() {
             </svg>
           </div>
           <div>
-            <h2 className="text-base font-semibold text-stone-900">Tu progreso</h2>
-            <p className="text-xs text-stone-500">Métricas de productividad y foco</p>
+            <h2 className="text-base font-semibold text-zen-900">Tu progreso</h2>
+            <p className="text-xs text-zen-500">Métricas de productividad y foco</p>
           </div>
         </div>
 
@@ -59,27 +59,27 @@ export function StatsPanel() {
 
       {/* ── Detalle de accuracy ── */}
       {stats.accuracy !== null && (
-        <div className="rounded-xl border border-stone-200 bg-white p-4">
-          <h3 className="text-xs font-semibold text-stone-700 mb-3">Estimado vs Real</h3>
+        <div className="rounded-xl border border-zen-200 bg-white p-4">
+          <h3 className="text-xs font-semibold text-zen-700 mb-3">Estimado vs Real</h3>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <div className="flex justify-between text-[11px] text-stone-500 mb-1">
+              <div className="flex justify-between text-[11px] text-zen-500 mb-1">
                 <span>Estimado: {formatMinutes(stats.totalEstimatedMin)}</span>
                 <span>Real: {formatMinutes(stats.totalRealMin)}</span>
               </div>
-              <div className="h-3 rounded-full bg-stone-100 overflow-hidden flex">
+              <div className="h-3 rounded-full bg-zen-100 overflow-hidden flex">
                 <div
                   className="h-full bg-brand-200 rounded-l-full"
                   style={{ width: `${Math.min(100, (stats.totalEstimatedMin / Math.max(stats.totalEstimatedMin, stats.totalRealMin)) * 100)}%` }}
                 />
               </div>
-              <div className="h-3 rounded-full bg-stone-100 overflow-hidden flex mt-1">
+              <div className="h-3 rounded-full bg-zen-100 overflow-hidden flex mt-1">
                 <div
                   className={`h-full rounded-l-full ${stats.accuracy <= 110 ? 'bg-emerald-400' : stats.accuracy <= 150 ? 'bg-amber-400' : 'bg-rose-400'}`}
                   style={{ width: `${Math.min(100, (stats.totalRealMin / Math.max(stats.totalEstimatedMin, stats.totalRealMin)) * 100)}%` }}
                 />
               </div>
-              <p className="text-[10px] text-stone-400 mt-2">
+              <p className="text-[10px] text-zen-400 mt-2">
                 {stats.accuracy <= 100
                   ? 'Estás terminando más rápido de lo estimado. ¡Bien!'
                   : stats.accuracy <= 130
@@ -105,13 +105,13 @@ export function StatsPanel() {
 
 function StatCard({ label, value, suffix, icon, color, highlight }) {
   const colors = {
-    stone: 'border-stone-200 bg-stone-50',
+    stone: 'border-zen-200 bg-zen-50',
     emerald: 'border-emerald-200 bg-emerald-50',
     brand: 'border-brand-200 bg-brand-50',
     amber: 'border-amber-200 bg-amber-50',
   };
   const textColors = {
-    stone: 'text-stone-800',
+    stone: 'text-zen-800',
     emerald: 'text-emerald-800',
     brand: 'text-brand-800',
     amber: 'text-amber-800',
@@ -121,8 +121,8 @@ function StatCard({ label, value, suffix, icon, color, highlight }) {
     <div className={`rounded-xl border p-3 text-center ${colors[color]} ${highlight ? 'ring-1 ring-amber-300' : ''}`}>
       <div className="text-lg mb-0.5">{icon}</div>
       <div className={`text-xl font-bold leading-none ${textColors[color]}`}>{value}</div>
-      {suffix && <div className="text-[10px] text-stone-500 mt-0.5">{suffix}</div>}
-      <div className="text-[10px] font-medium text-stone-400 mt-1">{label}</div>
+      {suffix && <div className="text-[10px] text-zen-500 mt-0.5">{suffix}</div>}
+      <div className="text-[10px] font-medium text-zen-400 mt-1">{label}</div>
     </div>
   );
 }
@@ -150,19 +150,19 @@ function StreakWeek({ streak }) {
   }
 
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-4">
-      <h3 className="text-xs font-semibold text-stone-700 mb-3">Últimos 7 días</h3>
+    <div className="rounded-xl border border-zen-200 bg-white p-4">
+      <h3 className="text-xs font-semibold text-zen-700 mb-3">Últimos 7 días</h3>
       <div className="flex justify-between gap-1.5">
         {days.map((day, i) => (
           <div key={i} className="flex-1 text-center" title={day.date}>
-            <div className="text-[10px] text-stone-400 mb-1.5">{day.label}</div>
+            <div className="text-[10px] text-zen-400 mb-1.5">{day.label}</div>
             <div
               className={`mx-auto size-8 rounded-lg grid place-items-center text-xs font-semibold transition ${
                 day.isActive
                   ? 'bg-emerald-500 text-white'
                   : day.isToday
-                  ? 'border-2 border-dashed border-stone-300 text-stone-400'
-                  : 'bg-stone-100 text-stone-300'
+                  ? 'border-2 border-dashed border-zen-300 text-zen-400'
+                  : 'bg-zen-100 text-zen-300'
               }`}
             >
               {day.isActive ? '✓' : day.isToday ? 'Hoy' : ''}
@@ -171,14 +171,14 @@ function StreakWeek({ streak }) {
         ))}
       </div>
       {streak > 0 && (
-        <p className="text-center text-xs text-stone-500 mt-3">
+        <p className="text-center text-xs text-zen-500 mt-3">
           🔥 {streak} {streak === 1 ? 'día' : 'días'} de racha
           {streak >= 7 && ' — ¡Una semana entera!'}
           {streak >= 3 && streak < 7 && ' — ¡Seguí así!'}
         </p>
       )}
       {streak === 0 && (
-        <p className="text-center text-xs text-stone-400 mt-3">
+        <p className="text-center text-xs text-zen-400 mt-3">
           Completá una subtask hoy para empezar tu racha.
         </p>
       )}
@@ -195,16 +195,16 @@ function TodayView({ items, onGoToTask }) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-stone-300 bg-white/40 p-6 text-center">
-        <p className="text-sm font-medium text-stone-700">¡Todo al día!</p>
-        <p className="text-xs text-stone-400 mt-1">No hay subtasks pendientes. Creá una nueva tarea.</p>
+      <div className="rounded-xl border border-dashed border-zen-300 bg-white/40 p-6 text-center">
+        <p className="text-sm font-medium text-zen-700">¡Todo al día!</p>
+        <p className="text-xs text-zen-400 mt-1">No hay subtasks pendientes. Creá una nueva tarea.</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-4 space-y-3">
-      <h3 className="text-xs font-semibold text-stone-700">¿Qué hago ahora?</h3>
+    <div className="rounded-xl border border-zen-200 bg-white p-4 space-y-3">
+      <h3 className="text-xs font-semibold text-zen-700">¿Qué hago ahora?</h3>
 
       {inProgress.length > 0 && (
         <div className="space-y-1.5">
@@ -217,7 +217,7 @@ function TodayView({ items, onGoToTask }) {
 
       {pending.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[10px] uppercase tracking-widest text-stone-400 font-semibold">
+          <p className="text-[10px] uppercase tracking-widest text-zen-400 font-semibold">
             Siguientes
           </p>
           {pending.map((item) => (
@@ -236,17 +236,17 @@ function TodayItem({ item, onGoToTask, active }) {
       className={`w-full text-left flex items-center gap-3 rounded-lg px-3 py-2.5 transition group ${
         active
           ? 'bg-brand-50 border border-brand-200'
-          : 'hover:bg-stone-50 border border-transparent'
+          : 'hover:bg-zen-50 border border-transparent'
       }`}
     >
-      <span className={`shrink-0 size-2 rounded-full ${active ? 'bg-brand-500 animate-pulse' : 'bg-stone-300'}`} />
+      <span className={`shrink-0 size-2 rounded-full ${active ? 'bg-brand-500 animate-pulse' : 'bg-zen-300'}`} />
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium truncate ${active ? 'text-brand-800' : 'text-stone-700'}`}>
+        <p className={`text-sm font-medium truncate ${active ? 'text-brand-800' : 'text-zen-700'}`}>
           {item.title}
         </p>
-        <p className="text-[10px] text-stone-400 truncate">{item.taskTitle}</p>
+        <p className="text-[10px] text-zen-400 truncate">{item.taskTitle}</p>
       </div>
-      <span className="text-[10px] text-stone-400">{item.estimatedMinutes}m</span>
+      <span className="text-[10px] text-zen-400">{item.estimatedMinutes}m</span>
       <span className="text-brand-500 opacity-0 group-hover:opacity-100 transition">→</span>
     </button>
   );
@@ -267,10 +267,10 @@ function CompletedTasksList({ tasks, onGoToTask }) {
   if (completedTasks.length === 0 && inProgressTasks.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-4 space-y-4">
+    <div className="rounded-xl border border-zen-200 bg-white p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-stone-700">Tiempos por tarea</h3>
-        <span className="text-[10px] text-stone-400">
+        <h3 className="text-xs font-semibold text-zen-700">Tiempos por tarea</h3>
+        <span className="text-[10px] text-zen-400">
           {completedTasks.length} {completedTasks.length === 1 ? 'completada' : 'completadas'}
         </span>
       </div>
@@ -287,7 +287,7 @@ function CompletedTasksList({ tasks, onGoToTask }) {
       {/* ── Tareas en progreso (con algunas subtasks hechas) ── */}
       {inProgressTasks.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[10px] uppercase tracking-widest text-stone-400 font-semibold pt-1">En progreso</p>
+          <p className="text-[10px] uppercase tracking-widest text-zen-400 font-semibold pt-1">En progreso</p>
           {inProgressTasks.map((task) => (
             <CompletedTaskRow key={task.id} task={task} onGoToTask={onGoToTask} inProgress />
           ))}
@@ -310,7 +310,7 @@ function CompletedTaskRow({ task, onGoToTask, inProgress }) {
     : null;
 
   const accuracyColor = accuracy === null
-    ? 'text-stone-400'
+    ? 'text-zen-400'
     : accuracy <= 110
     ? 'text-emerald-600'
     : accuracy <= 150
@@ -330,12 +330,12 @@ function CompletedTaskRow({ task, onGoToTask, inProgress }) {
   return (
     <button
       onClick={() => onGoToTask(task.id)}
-      className="w-full text-left rounded-lg border border-stone-100 hover:border-stone-200 bg-stone-50/50 hover:bg-stone-50 px-3.5 py-3 transition group"
+      className="w-full text-left rounded-lg border border-zen-100 hover:border-zen-200 bg-zen-50/50 hover:bg-zen-50 px-3.5 py-3 transition group"
     >
       {/* Row 1: title + status */}
       <div className="flex items-center gap-2 mb-1.5">
         <span className={`shrink-0 size-2 rounded-full ${inProgress ? 'bg-brand-500 animate-pulse' : 'bg-emerald-500'}`} />
-        <span className="text-sm font-medium text-stone-800 truncate flex-1">{task.title}</span>
+        <span className="text-sm font-medium text-zen-800 truncate flex-1">{task.title}</span>
         <span className="text-brand-500 opacity-0 group-hover:opacity-100 transition text-xs">→</span>
       </div>
 
@@ -343,26 +343,26 @@ function CompletedTaskRow({ task, onGoToTask, inProgress }) {
       <div className="ml-4 flex flex-wrap items-center gap-x-4 gap-y-1">
         {/* Estimado */}
         <div className="flex items-center gap-1.5">
-          <svg viewBox="0 0 20 20" className="size-3 text-stone-400" fill="currentColor">
+          <svg viewBox="0 0 20 20" className="size-3 text-zen-400" fill="currentColor">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clipRule="evenodd" />
           </svg>
-          <span className="text-[11px] text-stone-500">
-            Estimado: <span className="font-medium text-stone-700">{formatMinutes(totalEstimated)}</span>
+          <span className="text-[11px] text-zen-500">
+            Estimado: <span className="font-medium text-zen-700">{formatMinutes(totalEstimated)}</span>
           </span>
         </div>
 
         {/* Real */}
         <div className="flex items-center gap-1.5">
-          <svg viewBox="0 0 20 20" className="size-3 text-stone-400" fill="currentColor">
+          <svg viewBox="0 0 20 20" className="size-3 text-zen-400" fill="currentColor">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
           </svg>
-          <span className="text-[11px] text-stone-500">
-            Real: <span className="font-medium text-stone-700">{totalRealMin > 0 ? formatMinutes(totalRealMin) : '—'}</span>
+          <span className="text-[11px] text-zen-500">
+            Real: <span className="font-medium text-zen-700">{totalRealMin > 0 ? formatMinutes(totalRealMin) : '—'}</span>
           </span>
         </div>
 
         {/* Subtasks count */}
-        <span className="text-[11px] text-stone-400">
+        <span className="text-[11px] text-zen-400">
           {completedCount}/{totalCount} subtasks
         </span>
 
@@ -376,13 +376,13 @@ function CompletedTaskRow({ task, onGoToTask, inProgress }) {
 
       {/* Row 3: progress bar + date */}
       <div className="ml-4 mt-2 flex items-center gap-3">
-        <div className="flex-1 h-1.5 rounded-full bg-stone-200/70 overflow-hidden">
+        <div className="flex-1 h-1.5 rounded-full bg-zen-200/70 overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${inProgress ? 'bg-brand-500' : 'bg-emerald-400'}`}
             style={{ width: `${totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0}%` }}
           />
         </div>
-        <span className="text-[10px] text-stone-400 shrink-0">
+        <span className="text-[10px] text-zen-400 shrink-0">
           {inProgress
             ? `${Math.round((completedCount / totalCount) * 100)}%`
             : task.completedAt

@@ -4,7 +4,6 @@ import { formatRelativeDate } from '../utils/dates.js';
 
 /**
  * Panel de Learning Path curado por el usuario.
- * Los items se agregan manualmente o desde las sugerencias de Claude en cada tarea.
  */
 export function LearningPanel() {
   const { learningPath, toggleLearningItem, removeLearningItem, setCurrentTask } = useTaskStore();
@@ -16,34 +15,34 @@ export function LearningPanel() {
   return (
     <section className="space-y-5">
       {/* ── Header ── */}
-      <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+      <div className="rounded-2xl border border-zen-200 bg-white p-5">
         <div className="flex items-center gap-3 mb-4">
-          <div className="size-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center text-white">
-            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
+          <div className="size-9 rounded-xl bg-amber-100 grid place-items-center">
+            <svg viewBox="0 0 24 24" className="size-5 text-amber-600" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.331 0 4.471.89 6.042 2.35M12 6.042A8.967 8.967 0 0118 3.75c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18c-2.331 0-4.471.89-6.042 2.35M12 6.042V20.4" />
             </svg>
           </div>
           <div>
-            <h2 className="text-base font-semibold text-stone-900">Tu Learning Path</h2>
-            <p className="text-xs text-stone-500">
-              Lo que decidiste que necesitás aprender. Agregá temas manualmente o desde las sugerencias en cada tarea.
+            <h2 className="text-base font-semibold text-zen-900 tracking-tight">Learning Path</h2>
+            <p className="text-xs text-zen-500">
+              Lo que decidiste aprender. Agrega temas o promove sugerencias de cada tarea.
             </p>
           </div>
         </div>
 
         {/* Stats */}
         <div className="flex gap-3 mb-4">
-          <div className="flex-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center">
-            <div className="text-lg font-bold text-amber-800 leading-none">{pending.length}</div>
-            <div className="text-[10px] text-amber-700 mt-0.5">Por aprender</div>
+          <div className="flex-1 rounded-lg border border-amber-100 bg-amber-50/50 px-3 py-2 text-center">
+            <div className="text-lg font-bold text-amber-700 leading-none">{pending.length}</div>
+            <div className="text-[10px] text-amber-600 mt-0.5">Por aprender</div>
           </div>
-          <div className="flex-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center">
-            <div className="text-lg font-bold text-emerald-800 leading-none">{completed.length}</div>
-            <div className="text-[10px] text-emerald-700 mt-0.5">Aprendidos</div>
+          <div className="flex-1 rounded-lg border border-emerald-100 bg-emerald-50/50 px-3 py-2 text-center">
+            <div className="text-lg font-bold text-emerald-700 leading-none">{completed.length}</div>
+            <div className="text-[10px] text-emerald-600 mt-0.5">Aprendidos</div>
           </div>
         </div>
 
-        {/* ── Agregar manualmente ── */}
+        {/* ── Agregar ── */}
         <AddLearningInput
           value={newLabel}
           onChange={setNewLabel}
@@ -51,10 +50,10 @@ export function LearningPanel() {
         />
       </div>
 
-      {/* ── Items pendientes ── */}
+      {/* ── Pendientes ── */}
       {pending.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 px-1">
+        <div className="space-y-1.5">
+          <h3 className="text-[9px] font-semibold uppercase tracking-[0.15em] text-zen-400 px-1">
             Por aprender
           </h3>
           {pending.map((item) => (
@@ -69,11 +68,11 @@ export function LearningPanel() {
         </div>
       )}
 
-      {/* ── Items completados ── */}
+      {/* ── Completados ── */}
       {completed.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 px-1">
-            Aprendidos ({completed.length})
+        <div className="space-y-1.5">
+          <h3 className="text-[9px] font-semibold uppercase tracking-[0.15em] text-zen-400 px-1">
+            Aprendidos
           </h3>
           {completed.map((item) => (
             <LearningItem
@@ -89,12 +88,12 @@ export function LearningPanel() {
 
       {/* ── Empty ── */}
       {learningPath.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-stone-300 bg-white/40 px-6 py-10 text-center">
-          <p className="text-sm text-stone-500">
-            Tu Learning Path está vacío.
+        <div className="rounded-2xl border border-dashed border-zen-200 px-6 py-12 text-center animate-fade-in">
+          <p className="text-sm text-zen-500">
+            Tu Learning Path esta vacio.
           </p>
-          <p className="text-xs text-stone-400 mt-1">
-            Agregá temas arriba, o cuando veas sugerencias de Claude en una tarea, hacé click en "+" para agregarlas acá.
+          <p className="text-xs text-zen-400 mt-1.5 leading-relaxed">
+            Agrega temas arriba, o desde las sugerencias que aparecen en cada tarea.
           </p>
         </div>
       )}
@@ -119,12 +118,12 @@ function AddLearningInput({ value, onChange, onClear }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Ej: Aprender a escribir copy de ventas..."
-        className="flex-1 rounded-lg border border-stone-300 bg-stone-50/50 px-3 py-2 text-sm placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
+        className="flex-1 rounded-lg border border-zen-200 bg-zen-50/50 px-3 py-2 text-sm placeholder:text-zen-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/10 transition-all duration-200"
       />
       <button
         type="submit"
         disabled={!value.trim()}
-        className="rounded-lg bg-brand-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
       >
         Agregar
       </button>
@@ -136,22 +135,23 @@ function LearningItem({ item, onToggle, onRemove, onGoToTask }) {
   const isDone = item.status === 'completed';
 
   return (
-    <div className={`flex items-start gap-3 rounded-xl border p-3.5 group transition ${
+    <div className={`flex items-start gap-3 rounded-xl border p-3.5 group transition-all duration-200 ${
       isDone
-        ? 'border-emerald-100 bg-emerald-50/40'
-        : 'border-stone-200 bg-white hover:border-stone-300'
+        ? 'border-emerald-100/60 bg-emerald-50/30'
+        : 'border-zen-200 bg-white hover:border-zen-300'
     }`}>
       {/* Checkbox */}
       <button
         onClick={onToggle}
-        className={`shrink-0 mt-0.5 size-5 rounded-md border-2 grid place-items-center transition ${
+        className={`shrink-0 mt-0.5 size-4.5 rounded border-2 grid place-items-center transition-all duration-200 ${
           isDone
-            ? 'border-emerald-500 bg-emerald-500 text-white'
-            : 'border-stone-300 hover:border-brand-400'
+            ? 'border-emerald-400 bg-emerald-400 text-white'
+            : 'border-zen-300 hover:border-brand-400'
         }`}
+        style={{ width: '18px', height: '18px' }}
       >
         {isDone && (
-          <svg viewBox="0 0 20 20" className="size-3" fill="currentColor">
+          <svg viewBox="0 0 20 20" className="size-2.5" fill="currentColor">
             <path fillRule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 111.4-1.4L9 11.6l6.3-6.3a1 1 0 011.4 0z" clipRule="evenodd" />
           </svg>
         )}
@@ -159,27 +159,27 @@ function LearningItem({ item, onToggle, onRemove, onGoToTask }) {
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${isDone ? 'text-stone-500 line-through' : 'text-stone-900'}`}>
+        <p className={`text-sm font-medium leading-snug ${isDone ? 'text-zen-400 line-through' : 'text-zen-800'}`}>
           {item.label}
         </p>
         <div className="flex items-center gap-2 mt-1 flex-wrap">
-          <span className="text-[10px] text-stone-400">
+          <span className="text-[10px] text-zen-400">
             {isDone
               ? `Completado ${formatRelativeDate(item.completedAt)}`
               : `Agregado ${formatRelativeDate(item.addedAt)}`}
           </span>
           {item.sourceTaskTitle && (
             <>
-              <span className="text-stone-300">·</span>
+              <span className="text-zen-300">·</span>
               {onGoToTask ? (
                 <button
                   onClick={onGoToTask}
-                  className="text-[10px] text-brand-600 hover:text-brand-800 transition"
+                  className="text-[10px] text-brand-500 hover:text-brand-700 transition-colors duration-200"
                 >
-                  De: {item.sourceTaskTitle}
+                  {item.sourceTaskTitle}
                 </button>
               ) : (
-                <span className="text-[10px] text-stone-400">De: {item.sourceTaskTitle}</span>
+                <span className="text-[10px] text-zen-400">{item.sourceTaskTitle}</span>
               )}
             </>
           )}
@@ -189,10 +189,10 @@ function LearningItem({ item, onToggle, onRemove, onGoToTask }) {
       {/* Remove */}
       <button
         onClick={onRemove}
-        className="shrink-0 text-stone-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition p-1"
-        title="Quitar del learning path"
+        className="shrink-0 text-zen-300 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1"
+        title="Quitar"
       >
-        <svg viewBox="0 0 20 20" className="size-4" fill="currentColor">
+        <svg viewBox="0 0 20 20" className="size-3.5" fill="currentColor">
           <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
         </svg>
       </button>

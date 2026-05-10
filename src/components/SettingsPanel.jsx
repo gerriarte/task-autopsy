@@ -82,7 +82,7 @@ export function SettingsPanel() {
 
   return (
     <section className="space-y-5">
-      <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+      <div className="rounded-2xl border border-zen-200 bg-white p-5">
         <div className="flex items-center gap-3 mb-5">
           <div className="size-9 rounded-xl bg-gradient-to-br from-stone-600 to-stone-800 grid place-items-center text-white">
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -91,8 +91,8 @@ export function SettingsPanel() {
             </svg>
           </div>
           <div>
-            <h2 className="text-base font-semibold text-stone-900">Configuración de AI</h2>
-            <p className="text-xs text-stone-500">
+            <h2 className="text-base font-semibold text-zen-900">Configuración de AI</h2>
+            <p className="text-xs text-zen-500">
               Elegí tu proveedor y colocá tu API key. Se guarda localmente en tu navegador.
             </p>
           </div>
@@ -101,7 +101,7 @@ export function SettingsPanel() {
         {/* ── Provider selector ── */}
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-stone-700 mb-2">Proveedor</label>
+            <label className="block text-xs font-medium text-zen-700 mb-2">Proveedor</label>
             <div className="grid grid-cols-3 gap-2">
               {PROVIDER_IDS.map((pid) => {
                 const p = PROVIDERS[pid];
@@ -113,13 +113,13 @@ export function SettingsPanel() {
                     className={`rounded-xl border p-3 text-center transition ${
                       isActive
                         ? 'border-brand-300 bg-brand-50 ring-1 ring-brand-200'
-                        : 'border-stone-200 bg-white hover:border-stone-300'
+                        : 'border-zen-200 bg-white hover:border-zen-300'
                     }`}
                   >
-                    <div className={`text-sm font-medium ${isActive ? 'text-brand-800' : 'text-stone-700'}`}>
+                    <div className={`text-sm font-medium ${isActive ? 'text-brand-800' : 'text-zen-700'}`}>
                       {p.name.split(' ')[0]}
                     </div>
-                    <div className="text-[10px] text-stone-500 mt-0.5">
+                    <div className="text-[10px] text-zen-500 mt-0.5">
                       {p.name.match(/\((.+)\)/)?.[1] || ''}
                     </div>
                   </button>
@@ -130,11 +130,11 @@ export function SettingsPanel() {
 
           {/* ── Model selector ── */}
           <div>
-            <label className="block text-xs font-medium text-stone-700 mb-1.5">Modelo</label>
+            <label className="block text-xs font-medium text-zen-700 mb-1.5">Modelo</label>
             <select
               value={config.model || provider.defaultModel}
               onChange={(e) => setConfig({ ...config, model: e.target.value })}
-              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
+              className="w-full rounded-lg border border-zen-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
             >
               {provider.models.map((m) => (
                 <option key={m.id} value={m.id}>{m.label}</option>
@@ -144,7 +144,7 @@ export function SettingsPanel() {
 
           {/* ── API Key ── */}
           <div>
-            <label className="block text-xs font-medium text-stone-700 mb-1.5">API Key</label>
+            <label className="block text-xs font-medium text-zen-700 mb-1.5">API Key</label>
             <div className="relative">
               <input
                 type={showKey ? 'text' : 'password'}
@@ -155,16 +155,16 @@ export function SettingsPanel() {
                   setTestResult(null);
                 }}
                 placeholder={provider.placeholder}
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 pr-20 text-sm font-mono placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
+                className="w-full rounded-lg border border-zen-300 bg-white px-3 py-2 pr-20 text-sm font-mono placeholder:text-zen-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition"
               />
               <button
                 onClick={() => setShowKey(!showKey)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-stone-500 hover:text-stone-700 px-2 py-1"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zen-500 hover:text-zen-700 px-2 py-1"
               >
                 {showKey ? 'Ocultar' : 'Mostrar'}
               </button>
             </div>
-            <p className="text-[10px] text-stone-400 mt-1.5">
+            <p className="text-[10px] text-zen-400 mt-1.5">
               Tu key se guarda solo en tu navegador (localStorage). Nunca se envía a ningún servidor excepto al proveedor de AI.
             </p>
           </div>
@@ -174,7 +174,7 @@ export function SettingsPanel() {
             <button
               onClick={handleSave}
               disabled={!config.apiKey.trim()}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               {saved ? '✓ Guardado' : 'Guardar'}
             </button>
@@ -182,7 +182,7 @@ export function SettingsPanel() {
             <button
               onClick={handleTest}
               disabled={!config.apiKey.trim() || testing}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-white px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               {testing ? (
                 <>
@@ -198,7 +198,7 @@ export function SettingsPanel() {
             {isConfigured && (
               <button
                 onClick={handleClear}
-                className="ml-auto text-xs text-stone-400 hover:text-rose-600 transition"
+                className="ml-auto text-xs text-zen-400 hover:text-rose-600 transition"
               >
                 Borrar configuración
               </button>
@@ -260,7 +260,7 @@ function ExportSection() {
   const hasTasks = tasks.length > 0;
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+    <div className="rounded-2xl border border-zen-200 bg-white p-5">
       <div className="flex items-center gap-3 mb-4">
         <div className="size-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 grid place-items-center text-white">
           <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -268,8 +268,8 @@ function ExportSection() {
           </svg>
         </div>
         <div>
-          <h2 className="text-base font-semibold text-stone-900">Exportar datos</h2>
-          <p className="text-xs text-stone-500">
+          <h2 className="text-base font-semibold text-zen-900">Exportar datos</h2>
+          <p className="text-xs text-zen-500">
             Descargá tus tareas como CSV (para Sheets) o JSON (backup completo).
           </p>
         </div>
@@ -290,7 +290,7 @@ function ExportSection() {
         <button
           onClick={() => downloadJSON(tasks, learningPath)}
           disabled={!hasTasks}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-white px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
           <svg viewBox="0 0 20 20" className="size-3.5" fill="currentColor">
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -299,11 +299,11 @@ function ExportSection() {
         </button>
 
         {!hasTasks && (
-          <span className="text-[10px] text-stone-400">Creá una tarea primero</span>
+          <span className="text-[10px] text-zen-400">Creá una tarea primero</span>
         )}
       </div>
 
-      <p className="text-[10px] text-stone-400 mt-3">
+      <p className="text-[10px] text-zen-400 mt-3">
         El CSV se puede abrir directo en Google Sheets, Excel o importar en ClickUp.
         El JSON incluye toda tu data (tareas + learning path) como backup.
       </p>
@@ -370,7 +370,7 @@ function WebhookSection() {
   const hasWebhookConfig = !!loadWebhookConfig()?.url;
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white shadow-sm p-5">
+    <div className="rounded-2xl border border-zen-200 bg-white p-5">
       <div className="flex items-center gap-3 mb-5">
         <div className="size-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 grid place-items-center text-white">
           <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -378,8 +378,8 @@ function WebhookSection() {
           </svg>
         </div>
         <div>
-          <h2 className="text-base font-semibold text-stone-900">Webhooks</h2>
-          <p className="text-xs text-stone-500">
+          <h2 className="text-base font-semibold text-zen-900">Webhooks</h2>
+          <p className="text-xs text-zen-500">
             Conectá con Zapier, Make, n8n o cualquier herramienta para automatizar.
           </p>
         </div>
@@ -388,7 +388,7 @@ function WebhookSection() {
       <div className="space-y-4">
         {/* ── URL ── */}
         <div>
-          <label className="block text-xs font-medium text-stone-700 mb-1.5">Webhook URL</label>
+          <label className="block text-xs font-medium text-zen-700 mb-1.5">Webhook URL</label>
           <input
             type="url"
             value={webhook.url}
@@ -398,13 +398,13 @@ function WebhookSection() {
               setWebhookTestResult(null);
             }}
             placeholder="https://hooks.zapier.com/hooks/catch/..."
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-mono placeholder:text-stone-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition"
+            className="w-full rounded-lg border border-zen-300 bg-white px-3 py-2 text-sm font-mono placeholder:text-zen-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition"
           />
         </div>
 
         {/* ── Eventos ── */}
         <div>
-          <label className="block text-xs font-medium text-stone-700 mb-2">Eventos</label>
+          <label className="block text-xs font-medium text-zen-700 mb-2">Eventos</label>
           <div className="flex flex-wrap gap-2">
             {Object.entries(eventLabels).map(([event, label]) => {
               const isOn = webhook.events.includes(event);
@@ -415,7 +415,7 @@ function WebhookSection() {
                   className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                     isOn
                       ? 'border-violet-300 bg-violet-50 text-violet-800'
-                      : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300'
+                      : 'border-zen-200 bg-white text-zen-500 hover:border-zen-300'
                   }`}
                 >
                   {isOn && <span className="mr-1">✓</span>}
@@ -434,7 +434,7 @@ function WebhookSection() {
               setWebhookSaved(false);
             }}
             className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
-              webhook.enabled ? 'bg-violet-600' : 'bg-stone-200'
+              webhook.enabled ? 'bg-violet-600' : 'bg-zen-200'
             }`}
           >
             <span
@@ -443,7 +443,7 @@ function WebhookSection() {
               }`}
             />
           </button>
-          <span className="text-xs text-stone-600">
+          <span className="text-xs text-zen-600">
             {webhook.enabled ? 'Webhooks activos' : 'Webhooks desactivados'}
           </span>
         </div>
@@ -453,7 +453,7 @@ function WebhookSection() {
           <button
             onClick={handleWebhookSave}
             disabled={!webhook.url.trim()}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
             {webhookSaved ? '✓ Guardado' : 'Guardar webhook'}
           </button>
@@ -461,7 +461,7 @@ function WebhookSection() {
           <button
             onClick={handleWebhookTest}
             disabled={!webhook.url.trim() || webhookTesting}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zen-300 bg-white px-4 py-2 text-xs font-medium text-zen-700 hover:bg-zen-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
             {webhookTesting ? (
               <>
@@ -477,7 +477,7 @@ function WebhookSection() {
           {hasWebhookConfig && (
             <button
               onClick={handleWebhookClear}
-              className="ml-auto text-xs text-stone-400 hover:text-rose-600 transition"
+              className="ml-auto text-xs text-zen-400 hover:text-rose-600 transition"
             >
               Borrar webhook
             </button>
@@ -498,7 +498,7 @@ function WebhookSection() {
           </div>
         )}
 
-        <p className="text-[10px] text-stone-400">
+        <p className="text-[10px] text-zen-400">
           Cada evento envía un POST con JSON: {"{"} event, timestamp, data {"}"}. Compatible con Zapier, Make, n8n, y cualquier endpoint HTTP.
         </p>
       </div>
@@ -517,10 +517,10 @@ function WebhookGuide() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-xl border border-stone-200 bg-stone-50/50 mt-1">
+    <div className="rounded-xl border border-zen-200 bg-zen-50/50 mt-1">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-4 py-3 text-xs font-medium text-stone-600 hover:text-stone-800 transition"
+        className="w-full flex items-center justify-between px-4 py-3 text-xs font-medium text-zen-600 hover:text-zen-800 transition"
       >
         <span className="flex items-center gap-2">
           <svg viewBox="0 0 20 20" className="size-4 text-violet-500" fill="currentColor">
@@ -600,9 +600,9 @@ function WebhookGuide() {
           />
 
           {/* ── Payload reference ── */}
-          <div className="rounded-lg border border-stone-200 bg-white p-3">
-            <h4 className="text-[11px] font-semibold text-stone-700 mb-2">Referencia del payload</h4>
-            <div className="rounded-md bg-stone-900 text-stone-100 p-3 text-[10px] font-mono leading-relaxed overflow-x-auto">
+          <div className="rounded-lg border border-zen-200 bg-white p-3">
+            <h4 className="text-[11px] font-semibold text-zen-700 mb-2">Referencia del payload</h4>
+            <div className="rounded-md bg-zen-900 text-zen-100 p-3 text-[10px] font-mono leading-relaxed overflow-x-auto">
               <pre>{`{
   "event": "subtask.completed",
   "timestamp": "2026-05-09T14:30:00.000Z",
@@ -643,7 +643,7 @@ function GuideBlock({ title, color, link, steps }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className="text-[11px] font-semibold text-stone-700 flex items-center gap-1.5">
+        <h4 className="text-[11px] font-semibold text-zen-700 flex items-center gap-1.5">
           <span className={`size-2 rounded-full ${dotColors[color]}`} />
           {title}
         </h4>
@@ -658,8 +658,8 @@ function GuideBlock({ title, color, link, steps }) {
       </div>
       <ol className="space-y-1.5 ml-1">
         {steps.map((step, i) => (
-          <li key={i} className="flex gap-2 text-[11px] text-stone-600 leading-relaxed">
-            <span className="shrink-0 size-4 rounded-full bg-stone-200 text-stone-500 grid place-items-center text-[9px] font-bold mt-0.5">
+          <li key={i} className="flex gap-2 text-[11px] text-zen-600 leading-relaxed">
+            <span className="shrink-0 size-4 rounded-full bg-zen-200 text-zen-500 grid place-items-center text-[9px] font-bold mt-0.5">
               {i + 1}
             </span>
             <span>{step}</span>
@@ -674,17 +674,17 @@ function PayloadField({ name, values }) {
   return (
     <div className="flex gap-2 text-[10px]">
       <code className="font-mono text-violet-600 shrink-0">{name}</code>
-      <span className="text-stone-400">—</span>
-      <span className="text-stone-500">{values}</span>
+      <span className="text-zen-400">—</span>
+      <span className="text-zen-500">{values}</span>
     </div>
   );
 }
 
 function InfoCard({ title, desc, link, linkLabel }) {
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-3.5">
-      <h4 className="text-xs font-semibold text-stone-800">{title}</h4>
-      <p className="text-[10px] text-stone-500 mt-0.5">{desc}</p>
+    <div className="rounded-xl border border-zen-200 bg-white p-3.5">
+      <h4 className="text-xs font-semibold text-zen-800">{title}</h4>
+      <p className="text-[10px] text-zen-500 mt-0.5">{desc}</p>
       <a
         href={link}
         target="_blank"

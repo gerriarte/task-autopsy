@@ -40,49 +40,52 @@ function TaskCard({ task }) {
   }
 
   return (
-    <article className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
-      <header className="p-5 sm:p-6 border-b border-stone-100">
+    <article className="rounded-2xl border border-zen-200 bg-white overflow-hidden">
+      {/* Header — clean, breathing */}
+      <header className="p-5 sm:p-6 border-b border-zen-100">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-semibold text-stone-900 truncate">
+            <h3 className="text-base font-semibold text-zen-900 tracking-tight">
               {task.title}
             </h3>
-            <div className="mt-1 flex items-center gap-3 text-xs text-stone-500 flex-wrap">
-              <span>~{task.estimatedMinutes} min total</span>
-              <span aria-hidden>·</span>
+            <div className="mt-1.5 flex items-center gap-2 text-[11px] text-zen-400 flex-wrap">
+              <span>{task.estimatedMinutes} min</span>
+              <span className="text-zen-300">·</span>
               <span>{task.subtasks.length} pasos</span>
-              <span aria-hidden>·</span>
+              <span className="text-zen-300">·</span>
               <span className={isDone ? 'text-emerald-600 font-medium' : ''}>
-                {progress}% completado
+                {progress}%
               </span>
-              <span aria-hidden>·</span>
+              <span className="text-zen-300">·</span>
               <span>
                 {isDone
                   ? `Completada ${formatRelativeDate(task.completedAt)}`
-                  : `Creada ${formatRelativeDate(task.createdAt)}`}
+                  : formatRelativeDate(task.createdAt)}
               </span>
             </div>
           </div>
           <button
             onClick={() => deleteTask(task.id)}
-            className="text-xs text-stone-400 hover:text-rose-600 transition px-2 py-1"
+            className="text-[11px] text-zen-400 hover:text-rose-500 transition-colors duration-200 px-2 py-1"
             title="Eliminar tarea"
           >
             Eliminar
           </button>
         </div>
 
-        <div className="mt-4 h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
+        {/* Progress bar — thin, elegant */}
+        <div className="mt-4 h-1 w-full rounded-full bg-zen-100 overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              isDone ? 'bg-emerald-500' : 'bg-gradient-to-r from-brand-500 to-brand-600'
+            className={`h-full rounded-full transition-all duration-700 ease-out ${
+              isDone ? 'bg-emerald-400' : 'bg-brand-500'
             }`}
             style={{ width: `${progress}%` }}
           />
         </div>
       </header>
 
-      <div className="p-5 sm:p-6 space-y-2.5">
+      {/* Subtasks */}
+      <div className="p-5 sm:p-6 space-y-2">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -98,19 +101,18 @@ function TaskCard({ task }) {
           </SortableContext>
         </DndContext>
 
-        {/* Input inline para agregar más pasos */}
-        <div className="mt-3">
+        <div className="mt-2">
           <AddStepsInput taskId={task.id} taskTitle={task.title} />
         </div>
       </div>
 
+      {/* Footer — tips & learning gaps */}
       {(task.tips?.length > 0 || task.learningGaps?.length > 0) && (
-        <footer className="border-t border-stone-100 bg-stone-50/50 p-5 sm:p-6 space-y-3">
+        <footer className="border-t border-zen-100 bg-zen-50/30 p-5 sm:p-6 space-y-3">
           {task.tips?.length > 0 && (
             <div className="flex gap-3 text-sm">
-              <span className="shrink-0 text-amber-500" aria-hidden>💡</span>
-              <p className="text-stone-700">
-                <span className="font-medium">Tip: </span>
+              <span className="shrink-0 text-zen-400 text-xs mt-0.5">tip</span>
+              <p className="text-zen-600 leading-relaxed">
                 {task.tips[0]}
               </p>
             </div>
@@ -118,10 +120,9 @@ function TaskCard({ task }) {
 
           {task.learningGaps?.length > 0 && (
             <div className="flex gap-3 text-sm">
-              <span className="shrink-0 text-brand-500" aria-hidden>📚</span>
-              <div className="text-stone-600">
-                <span className="font-medium text-stone-700">Claude sugiere aprender: </span>
-                <span className="inline-flex flex-wrap gap-1.5 mt-1">
+              <span className="shrink-0 text-zen-400 text-xs mt-0.5">learn</span>
+              <div className="text-zen-600">
+                <span className="inline-flex flex-wrap gap-1.5">
                   {task.learningGaps.map((gap) => {
                     const alreadyAdded = isInLearningPath(gap);
                     return (
@@ -129,12 +130,12 @@ function TaskCard({ task }) {
                         key={gap}
                         onClick={() => !alreadyAdded && addToLearningPath(gap, task.id, task.title)}
                         disabled={alreadyAdded}
-                        className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium transition ${
+                        className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium transition-all duration-200 ${
                           alreadyAdded
                             ? 'bg-emerald-50 text-emerald-600 cursor-default'
-                            : 'bg-brand-50 text-brand-700 hover:bg-brand-100 cursor-pointer'
+                            : 'bg-zen-100 text-zen-600 hover:bg-brand-50 hover:text-brand-700 cursor-pointer'
                         }`}
-                        title={alreadyAdded ? 'Ya está en tu Learning Path' : 'Agregar a tu Learning Path'}
+                        title={alreadyAdded ? 'Ya en tu Learning Path' : 'Agregar al Learning Path'}
                       >
                         {alreadyAdded ? '✓' : '+'} {gap}
                       </button>
@@ -151,8 +152,7 @@ function TaskCard({ task }) {
 }
 
 /**
- * Muestra la tarea seleccionada (currentTaskId).
- * La navegación entre tareas la controla el sidebar (TaskNav).
+ * Muestra la tarea seleccionada.
  */
 export function TaskTree() {
   const { getCurrentTask } = useTaskStore();
@@ -161,7 +161,7 @@ export function TaskTree() {
   if (!currentTask) return null;
 
   return (
-    <section>
+    <section className="animate-fade-in">
       <TaskCard task={currentTask} />
     </section>
   );

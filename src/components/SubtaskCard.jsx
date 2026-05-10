@@ -8,6 +8,7 @@ import { FocusMode } from './FocusMode.jsx';
 
 export function SubtaskCard({ subtask, taskId, taskTitle }) {
   const [showFocus, setShowFocus] = useState(false);
+  const [justCompleted, setJustCompleted] = useState(false);
   const {
     activeSubtask,
     startSubtask,
@@ -57,6 +58,9 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
   const elapsedTotal = (subtask.timeSpentSeconds || 0) + timer.elapsedSeconds;
   const isPaused = timer.hasStarted && !timer.isRunning && timer.secondsLeft > 0;
 
+  // Overtime detection: how far past estimated time
+  const overtimeRatio = totalSeconds > 0 ? elapsedTotal / totalSeconds : 0;
+
   function handleStart() {
     startSubtask(taskId, subtask.id);
     timer.start();
@@ -72,13 +76,15 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
   function handleComplete() {
     timer.pause();
     completeSubtask(taskId, subtask.id, elapsedTotal);
+    setJustCompleted(true);
+    setTimeout(() => setJustCompleted(false), 400);
   }
   function handleReset() {
     timer.reset(totalSeconds);
     resetSubtask(taskId, subtask.id);
   }
 
-  // ============ COMPLETED ============
+  // ============ COMPLETED — compact, satisfying ============
   if (isCompleted) {
     const realMin = Math.round((subtask.timeSpentSeconds || 0) / 60);
     const estMin = subtask.estimatedMinutes;
@@ -88,9 +94,9 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
       <div
         ref={setNodeRef}
         style={dragStyle}
-        className={`group flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-2.5 ${
-          isDragging ? 'opacity-50' : ''
-        }`}
+        className={`group flex items-center gap-3 rounded-xl border border-emerald-100/80 bg-emerald-50/40 px-3.5 py-2.5 transition-all duration-300 ${
+          isDragging ? 'opacity-40' : ''
+        } ${justCompleted ? 'animate-complete-pop' : ''}`}
       >
         <DragHandle attributes={attributes} listeners={listeners} />
         <div className="size-5 shrink-0 rounded-full bg-emerald-500 text-white grid place-items-center">
@@ -100,16 +106,16 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-stone-600 line-through truncate">
+          <p className="text-sm font-medium text-zen-500 line-through truncate">
             {subtask.title}
           </p>
-          <p className="text-xs text-stone-500 mt-0.5">
-            Real: <span className="font-medium">{realMin} min</span>
-            <span className="mx-1.5 text-stone-300">·</span>
-            Estimado: {estMin} min
+          <p className="text-[11px] text-zen-400 mt-0.5">
+            {realMin}m real
+            <span className="mx-1.5 text-zen-300">·</span>
+            {estMin}m est.
             {realMin > 0 && (
-              <span className={`ml-1.5 ${onTime ? 'text-emerald-600' : 'text-amber-600'}`}>
-                {onTime ? '✓ a tiempo' : `+${realMin - estMin} min`}
+              <span className={`ml-1.5 font-medium ${onTime ? 'text-emerald-600' : 'text-amber-600'}`}>
+                {onTime ? 'a tiempo' : `+${realMin - estMin}m`}
               </span>
             )}
           </p>
@@ -117,7 +123,7 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
 
         <button
           onClick={handleReset}
-          className="text-xs text-stone-400 hover:text-stone-700 opacity-0 group-hover:opacity-100 transition px-2"
+          className="text-[11px] text-zen-400 hover:text-zen-600 opacity-0 group-hover:opacity-100 transition-all duration-200 px-2"
           title="Reabrir"
         >
           Reabrir
@@ -130,18 +136,39 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
   const progressPct = totalSeconds > 0 ? (elapsedTotal / totalSeconds) * 100 : 0;
   const progressClamped = Math.min(100, progressPct);
   const lowTime = timer.secondsLeft < 60 && timer.isRunning;
+  const isOvertime = overtimeRatio > 1;
 
-  // Visual state ring
+  // Urgency border color — graduated, never alarming
+  const borderClass = timer.isRunning
+    ? isOvertime
+      ? 'border-amber-300/70'          // overtime: warm amber
+      : lowTime
+      ? 'border-amber-200/60'          // low time: subtle amber
+      : 'border-brand-200/60'          // normal: calm brand
+    : isPaused
+    ? 'border-amber-200/50'
+    : 'border-zen-200';
+
+  // Background hint for overtime — very subtle
+  const bgClass = timer.isRunning
+    ? isOvertime
+      ? 'bg-amber-50/30'
+      : 'bg-white'
+    : isPaused
+    ? 'bg-amber-50/20'
+    : 'bg-white';
+
   const cardClass = [
-    'rounded-xl border bg-white p-4 transition-all',
-    timer.isRunning
-      ? 'border-brand-300 ring-2 ring-brand-500/20 shadow-md animate-pulse-ring'
-      : isPaused
-      ? 'border-amber-200 bg-amber-50/30'
-      : 'border-stone-200 hover:border-stone-300',
-    isDragging ? 'opacity-50' : '',
-    isActiveElsewhere ? 'opacity-50' : '',
+    'rounded-xl border p-4 transition-all duration-300',
+    borderClass,
+    bgClass,
+    timer.isRunning && !isOvertime ? 'animate-pulse-ring' : '',
+    isDragging ? 'opacity-40' : '',
+    isActiveElsewhere ? 'opacity-40' : '',
   ].join(' ');
+
+  // Timer nudge when it hits zero
+  const timerNudge = timer.secondsLeft === 0 && timer.hasStarted;
 
   return (
     <div ref={setNodeRef} style={dragStyle} className={cardClass}>
@@ -151,50 +178,59 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h4 className="text-sm font-semibold text-stone-900 leading-snug">
+              <h4 className="text-sm font-medium text-zen-900 leading-snug">
                 {subtask.title}
               </h4>
-              <p className="mt-1 text-xs text-stone-600 leading-relaxed">
+              <p className="mt-1 text-xs text-zen-500 leading-relaxed">
                 {subtask.description}
               </p>
             </div>
 
             {/* Timer display */}
-            <div className="text-right shrink-0">
+            <div className={`text-right shrink-0 ${timerNudge ? 'animate-nudge' : ''}`}>
               <div
-                className={`font-mono text-2xl font-bold leading-none tabular-nums ${
-                  lowTime
-                    ? 'text-rose-600'
+                className={`font-mono text-2xl font-bold leading-none tabular-nums transition-colors duration-500 ${
+                  isOvertime
+                    ? 'text-amber-600'
+                    : lowTime
+                    ? 'text-amber-500'
                     : timer.isRunning
                     ? 'text-brand-600'
                     : isPaused
-                    ? 'text-amber-700'
-                    : 'text-stone-400'
+                    ? 'text-amber-600'
+                    : 'text-zen-300'
                 }`}
               >
                 {formatTime(timer.secondsLeft)}
               </div>
-              <p className="text-[10px] uppercase tracking-wider text-stone-400 mt-0.5">
-                {timer.isRunning ? 'corriendo' : isPaused ? 'pausado' : `${subtask.estimatedMinutes} min`}
+              <p className={`text-[10px] uppercase tracking-wider mt-0.5 transition-colors duration-300 ${
+                isOvertime ? 'text-amber-500' : 'text-zen-400'
+              }`}>
+                {timer.isRunning
+                  ? isOvertime ? 'tiempo extra' : lowTime ? 'casi' : 'enfocado'
+                  : isPaused ? 'pausado' : `${subtask.estimatedMinutes} min`}
               </p>
             </div>
           </div>
 
-          {/* Progress */}
+          {/* Progress bar */}
           {timer.hasStarted && (
-            <div className="mt-3 h-1 w-full rounded-full bg-stone-100 overflow-hidden">
+            <div className="mt-3 h-1 w-full rounded-full bg-zen-100 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${
-                  lowTime ? 'bg-rose-500' : timer.isRunning ? 'bg-brand-500' : 'bg-amber-400'
+                  isOvertime ? 'bg-amber-400' : lowTime ? 'bg-amber-400' : timer.isRunning ? 'bg-brand-400' : 'bg-amber-300'
                 }`}
-                style={{ width: `${progressClamped}%`, transitionDuration: timer.isRunning ? '1s' : '300ms' }}
+                style={{
+                  width: `${progressClamped}%`,
+                  transitionDuration: timer.isRunning ? '1s' : '300ms',
+                }}
               />
             </div>
           )}
 
-          {/* Knowledge gaps — clickeables para agregar al Learning Path */}
+          {/* Knowledge gaps */}
           {subtask.knowledgeGaps?.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1">
+            <div className="mt-2.5 flex flex-wrap gap-1">
               {subtask.knowledgeGaps.map((gap) => {
                 const added = isInLearningPath(gap);
                 return (
@@ -202,10 +238,10 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
                     key={gap}
                     onClick={() => !added && addToLearningPath(gap, taskId, taskTitle)}
                     disabled={added}
-                    className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium transition ${
+                    className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium transition-all duration-200 ${
                       added
                         ? 'bg-emerald-50 text-emerald-600 cursor-default'
-                        : 'bg-stone-100 text-stone-600 hover:bg-brand-50 hover:text-brand-700 cursor-pointer'
+                        : 'bg-zen-100 text-zen-600 hover:bg-brand-50 hover:text-brand-700 cursor-pointer'
                     }`}
                     title={added ? 'En tu Learning Path' : 'Agregar al Learning Path'}
                   >
@@ -216,14 +252,14 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
             </div>
           )}
 
-          {/* Actions */}
-          <div className="mt-3 flex items-center gap-2 flex-wrap">
+          {/* Actions — clean, spaced */}
+          <div className="mt-3.5 flex items-center gap-2 flex-wrap">
             {!timer.hasStarted && (
               <button
                 onClick={handleStart}
                 disabled={isActiveElsewhere}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                title={isActiveElsewhere ? 'Pausá la otra subtask primero' : undefined}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
+                title={isActiveElsewhere ? 'Pausa la otra subtask primero' : undefined}
               >
                 <PlayIcon /> Empezar
               </button>
@@ -232,7 +268,7 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
             {timer.isRunning && (
               <button
                 onClick={handlePause}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-200 transition"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-zen-100 px-3.5 py-1.5 text-xs font-medium text-zen-700 hover:bg-zen-200 transition-colors duration-200"
               >
                 <PauseIcon /> Pausar
               </button>
@@ -242,7 +278,7 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
               <button
                 onClick={handleResume}
                 disabled={isActiveElsewhere}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 <PlayIcon /> Continuar
               </button>
@@ -250,7 +286,7 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
 
             <button
               onClick={handleComplete}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50/50 px-3.5 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition-colors duration-200"
             >
               <CheckIcon /> Listo
             </button>
@@ -259,7 +295,6 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
             {!isCompleted && (
               <button
                 onClick={() => {
-                  // Pause the card's own timer — FocusMode will take over
                   if (timer.isRunning) {
                     timer.pause();
                     pauseSubtask(taskId, subtask.id, elapsedTotal);
@@ -267,7 +302,7 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
                   setShowFocus(true);
                 }}
                 disabled={isActiveElsewhere}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200/60 px-3 py-1.5 text-xs font-medium text-brand-600 hover:bg-brand-50/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
                 title="Modo sin distracciones"
               >
                 <FocusIcon /> Foco
@@ -277,13 +312,19 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
             {timer.hasStarted && (
               <button
                 onClick={handleReset}
-                className="ml-auto text-xs text-stone-400 hover:text-stone-700 px-2 transition"
+                className="ml-auto text-[11px] text-zen-400 hover:text-zen-600 px-2 transition-colors duration-200"
                 title="Reiniciar timer"
               >
                 Reiniciar
               </button>
             )}
           </div>
+
+          {isActiveElsewhere && (
+            <p className="mt-2 text-[11px] text-amber-600 bg-amber-50/60 px-2.5 py-1 rounded-lg">
+              Otra subtask esta activa. Pausala primero.
+            </p>
+          )}
 
           {/* Focus mode overlay */}
           {showFocus && (
@@ -293,19 +334,9 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
               taskTitle={taskTitle}
               onExit={() => {
                 setShowFocus(false);
-                // Re-sync the card timer with the store's updated timeSpentSeconds
-                // The FocusMode already saved to store via pause/complete, so
-                // the card will re-render with fresh subtask.timeSpentSeconds
-                // and its own startingSeconds memo will recalculate
                 timer.reset(Math.max(0, totalSeconds - (subtask.timeSpentSeconds || 0)));
               }}
             />
-          )}
-
-          {isActiveElsewhere && (
-            <p className="mt-2 text-[11px] text-amber-700 bg-amber-50 px-2 py-1 rounded">
-              Otra subtask está activa. Pausala primero.
-            </p>
           )}
         </div>
       </div>
@@ -320,8 +351,8 @@ function DragHandle({ attributes, listeners }) {
       {...attributes}
       {...listeners}
       aria-label="Reordenar"
-      title="Arrastrá para reordenar"
-      className="shrink-0 cursor-grab active:cursor-grabbing text-stone-300 hover:text-stone-500 transition pt-0.5 touch-none"
+      title="Arrastra para reordenar"
+      className="shrink-0 cursor-grab active:cursor-grabbing text-zen-300 hover:text-zen-400 transition-colors duration-200 pt-0.5 touch-none"
     >
       <svg viewBox="0 0 20 20" className="size-4" fill="currentColor">
         <circle cx="7" cy="5" r="1.5" />

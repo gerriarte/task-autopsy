@@ -22,19 +22,19 @@ export function TaskInput() {
   }
 
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white shadow-sm">
+    <section className="rounded-2xl border border-zen-200 bg-white">
       <div className="p-5 sm:p-6">
         {!hasTasks ? (
           <>
-            <h2 className="text-base font-semibold text-stone-900">
-              ¿Qué necesitás romper en pedazos hoy?
+            <h2 className="text-base font-semibold text-zen-900 tracking-tight">
+              Que necesitas descomponer hoy?
             </h2>
-            <p className="mt-1 text-sm text-stone-500">
-              Escribí una tarea grande o vaga. Claude la convierte en micro-tareas de 15–30 min.
+            <p className="mt-1.5 text-sm text-zen-500 leading-relaxed">
+              Escribi una tarea grande o vaga. La AI la convierte en pasos de 15-30 min.
             </p>
           </>
         ) : (
-          <h2 className="text-sm font-semibold text-stone-900">
+          <h2 className="text-sm font-medium text-zen-800">
             Nueva tarea
           </h2>
         )}
@@ -47,27 +47,29 @@ export function TaskInput() {
             rows={hasTasks ? 2 : 3}
             disabled={isLoading}
             autoFocus={hasTasks}
-            className="w-full resize-y rounded-xl border border-stone-300 bg-stone-50/50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:opacity-60 disabled:cursor-not-allowed transition"
+            className="w-full resize-y rounded-xl border border-zen-200 bg-zen-50/50 px-4 py-3 text-sm text-zen-900 placeholder:text-zen-400 focus:bg-white focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           />
 
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs text-stone-400">
+            <p className="text-[11px] text-zen-400 tabular-nums">
               {text.length > 0 && `${text.length} caracteres`}
             </p>
             <button
               type="submit"
               disabled={isLoading || !text.trim()}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-700 active:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 active:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-200"
             >
               {isLoading ? (
                 <>
                   <Spinner />
-                  Descomponiendo...
+                  <span>Descomponiendo...</span>
                 </>
               ) : (
                 <>
                   Descomponer
-                  <span aria-hidden>→</span>
+                  <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
                 </>
               )}
             </button>
@@ -78,16 +80,15 @@ export function TaskInput() {
       {error && (
         <div
           role="alert"
-          className="border-t border-rose-100 bg-rose-50 px-5 sm:px-6 py-3 flex items-start gap-3 text-sm rounded-b-2xl"
+          className="border-t border-rose-100 bg-rose-50/70 px-5 sm:px-6 py-3 flex items-start gap-3 text-sm rounded-b-2xl animate-fade-in"
         >
-          <span className="size-5 mt-0.5 grid place-items-center rounded-full bg-rose-200 text-rose-700 font-bold text-xs">!</span>
+          <span className="size-5 mt-0.5 grid place-items-center rounded-full bg-rose-200/80 text-rose-700 font-bold text-[10px]">!</span>
           <div className="flex-1 text-rose-800">
-            <strong className="font-semibold">Error.</strong>{' '}
             <span className="text-rose-700">{error}</span>
           </div>
           <button
             onClick={clearError}
-            className="text-rose-700 hover:text-rose-900 text-xs font-medium"
+            className="text-rose-600 hover:text-rose-800 text-[11px] font-medium transition-colors duration-200"
           >
             Cerrar
           </button>
@@ -100,8 +101,8 @@ export function TaskInput() {
 function Spinner() {
   return (
     <svg className="animate-spin size-4" viewBox="0 0 24 24" fill="none">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+      <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+      <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z" />
     </svg>
   );
 }
