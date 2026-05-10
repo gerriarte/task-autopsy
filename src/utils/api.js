@@ -1,6 +1,45 @@
-const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
-const API_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-sonnet-4-6';
+import { PROVIDERS, DEFAULT_PROVIDER } from './providers.js';
+import { API_TIMEOUT_MS } from './constants.js';
+
+const CONFIG_KEY = 'task_autopsy_api_config';
+
+/**
+ * Lee la configuración de API desde localStorage.
+ * Fallback: .env.local para compatibilidad hacia atrás.
+ */
+export function loadApiConfig() {
+  try {
+    const raw = localStorage.getItem(CONFIG_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+
+  // Fallback a .env.local (solo Anthropic)
+  const envKey = import.meta.env?.VITE_ANTHROPIC_API_KEY;
+  if (envKey && envKey !== 'your_api_key_here') {
+    return {
+      provider: 'anthropic',
+      apiKey: envKey,
+      model: PROVIDERS.anthropic.defaultModel,
+    };
+  }
+
+  return null;
+}
+
+export function saveApiConfig(config) {
+  try {
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function clearApiConfig() {
+  try {
+    localStorage.removeItem(CONFIG_KEY);
+  } catch {}
+}
 
 function cleanJSON(raw) {
   return raw
@@ -9,42 +48,49 @@ function cleanJSON(raw) {
     .trim();
 }
 
+/**
+ * Llama a la API del proveedor configurado.
+ * Si no hay configuración, lanza error descriptivo.
+ */
 export async function callClaudeAPI(systemPrompt, userMessage, maxTokens = 2500) {
-  if (!API_KEY || API_KEY === 'your_api_key_here') {
-    throw new Error('API key no configurada. Revisá .env.local (VITE_ANTHROPIC_API_KEY).');
+  const config = loadApiConfig();
+
+  if (!config || !config.apiKey) {
+    throw new Error('API no configurada. Andá a Ajustes (⚙) y configurá tu proveedor y API key.');
   }
 
+  const provider = PROVIDERS[config.provider];
+  if (!provider) {
+    throw new Error(`Proveedor "${config.provider}" no soportado.`);
+  }
+
+  const model = config.model || provider.defaultModel;
+  const { url, headers, body } = provider.buildRequest(systemPrompt, userMessage, maxTokens, config.apiKey, model);
+
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000);
+  const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(url, {
       method: 'POST',
       signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: maxTokens,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMessage }],
-      }),
+      headers,
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(`API error ${response.status}: ${errorData.error?.message || response.statusText}`);
+      const msg = errorData.error?.message
+        || errorData.error?.status
+        || response.statusText;
+      throw new Error(`${provider.name} error ${response.status}: ${msg}`);
     }
 
     const data = await response.json();
-    const raw = data.content?.[0]?.text;
+    const raw = provider.extractText(data);
 
     if (!raw) {
-      throw new Error('Respuesta vacía de Claude');
+      throw new Error(`Respuesta vacía de ${provider.name}`);
     }
 
     return cleanJSON(raw);
