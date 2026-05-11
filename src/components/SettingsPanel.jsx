@@ -3,6 +3,12 @@ import { PROVIDERS, PROVIDER_IDS, DEFAULT_PROVIDER } from '../utils/providers.js
 import { loadApiConfig, saveApiConfig, clearApiConfig, callClaudeAPI } from '../utils/api.js';
 import { downloadCSV, downloadJSON } from '../utils/export.js';
 import { loadWebhookConfig, saveWebhookConfig, clearWebhookConfig, testWebhook, WEBHOOK_EVENTS } from '../utils/webhook.js';
+import {
+  getNotificationPermission,
+  requestNotificationPermission,
+  loadNotifConfig,
+  saveNotifConfig,
+} from '../utils/notifications.js';
 import useTaskStore from '../store/taskStore.js';
 
 export function SettingsPanel() {
@@ -243,12 +249,191 @@ export function SettingsPanel() {
         />
       </div>
 
+      {/* ═══════════════ NOTIFICACIONES ═══════════════ */}
+      <NotificationSection />
+
       {/* ═══════════════ EXPORT ═══════════════ */}
       <ExportSection />
 
       {/* ═══════════════ WEBHOOKS ═══════════════ */}
       <WebhookSection />
     </section>
+  );
+}
+
+/**
+ * Sección de Notificaciones
+ */
+function NotificationSection() {
+  const [permission, setPermission] = useState(getNotificationPermission);
+  const [config, setConfig] = useState(loadNotifConfig);
+  const [saved, setSaved] = useState(false);
+
+  async function handleRequestPermission() {
+    const result = await requestNotificationPermission();
+    setPermission(result);
+  }
+
+  function updateConfig(key, value) {
+    const updated = { ...config, [key]: value };
+    setConfig(updated);
+    saveNotifConfig(updated);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  }
+
+  const isSupported = permission !== 'unsupported';
+  const isGranted = permission === 'granted';
+  const isDenied = permission === 'denied';
+
+  return (
+    <div className="zen-card p-5">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="size-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 grid place-items-center text-white">
+          <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-zen-900">Notificaciones</h2>
+          <p className="text-xs text-zen-500">
+            Recordatorios para mantener tu foco y racha.
+          </p>
+        </div>
+        {saved && (
+          <span className="ml-auto text-xs text-emerald-600 font-medium animate-fade-in">Guardado</span>
+        )}
+      </div>
+
+      {/* ── Permission status ── */}
+      {!isSupported && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-xs text-amber-700">
+          Tu navegador no soporta notificaciones.
+        </div>
+      )}
+
+      {isSupported && !isGranted && !isDenied && (
+        <div className="rounded-lg border border-brand-200 bg-brand-50/60 px-3 py-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium text-brand-800">Activar notificaciones</p>
+            <p className="text-xs text-brand-600 mt-0.5">Para recordatorios de racha, timer y tareas pendientes.</p>
+          </div>
+          <button
+            onClick={handleRequestPermission}
+            className="shrink-0 rounded-lg bg-brand-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-700 transition-colors duration-200"
+          >
+            Permitir
+          </button>
+        </div>
+      )}
+
+      {isDenied && (
+        <div className="rounded-lg border border-rose-200 bg-rose-50/60 px-3 py-2.5 text-xs text-rose-700">
+          Las notificaciones fueron bloqueadas. Podes habilitarlas desde la configuracion de tu navegador.
+        </div>
+      )}
+
+      {/* ── Config toggles (only if granted) ── */}
+      {isGranted && (
+        <div className="space-y-3 mt-1">
+          {/* Master toggle */}
+          <NotifToggle
+            label="Notificaciones activadas"
+            description="Toggle principal — desactiva todo de un golpe"
+            checked={config.enabled}
+            onChange={(v) => updateConfig('enabled', v)}
+          />
+
+          {config.enabled && (
+            <div className="space-y-2 pl-1 border-l-2 border-zen-200 ml-2">
+              <NotifToggle
+                label="Timer completado"
+                description="Cuando el tiempo de una subtask llega a cero"
+                checked={config.timerComplete}
+                onChange={(v) => updateConfig('timerComplete', v)}
+              />
+              <NotifToggle
+                label="Paso completado"
+                description="Cuando marcas un paso como listo"
+                checked={config.subtaskComplete}
+                onChange={(v) => updateConfig('subtaskComplete', v)}
+              />
+              <NotifToggle
+                label="Tarea completada"
+                description="Cuando terminas todos los pasos de una tarea"
+                checked={config.taskComplete}
+                onChange={(v) => updateConfig('taskComplete', v)}
+              />
+              <NotifToggle
+                label="Recordatorio de racha"
+                description="Te avisa si tu racha esta en riesgo (despues de las 14h)"
+                checked={config.streakReminder}
+                onChange={(v) => updateConfig('streakReminder', v)}
+              />
+              <NotifToggle
+                label="Tareas pendientes"
+                description="Te recuerda si tenes pasos sin completar"
+                checked={config.pendingReminder}
+                onChange={(v) => updateConfig('pendingReminder', v)}
+              />
+
+              {/* Quiet hours */}
+              <div className="pt-2">
+                <p className="text-xs font-medium text-zen-700 mb-1.5">Horas de silencio</p>
+                <p className="text-[10px] text-zen-400 mb-2">No se envian notificaciones en este rango.</p>
+                <div className="flex items-center gap-2 text-sm">
+                  <select
+                    value={config.quietHoursStart}
+                    onChange={(e) => updateConfig('quietHoursStart', Number(e.target.value))}
+                    className="rounded-lg border border-zen-200 bg-[#fffef9] px-2 py-1.5 text-xs text-zen-700"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>{String(i).padStart(2, '0')}:00</option>
+                    ))}
+                  </select>
+                  <span className="text-xs text-zen-400">a</span>
+                  <select
+                    value={config.quietHoursEnd}
+                    onChange={(e) => updateConfig('quietHoursEnd', Number(e.target.value))}
+                    className="rounded-lg border border-zen-200 bg-[#fffef9] px-2 py-1.5 text-xs text-zen-700"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>{String(i).padStart(2, '0')}:00</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NotifToggle({ label, description, checked, onChange }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-1.5 px-2">
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-zen-700">{label}</p>
+        {description && <p className="text-[10px] text-zen-400 mt-0.5">{description}</p>}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+          checked ? 'bg-brand-600' : 'bg-zen-300'
+        }`}
+      >
+        <span
+          className={`pointer-events-none inline-block size-4 rounded-full bg-[#fffef9] shadow transform transition-transform duration-200 ${
+            checked ? 'translate-x-4' : 'translate-x-0'
+          }`}
+        />
+      </button>
+    </div>
   );
 }
 

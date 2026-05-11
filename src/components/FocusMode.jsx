@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useCallback } from 'react';
 import useTaskStore from '../store/taskStore.js';
 import { useTimer, formatTime } from '../hooks/useTimer.js';
+import { notifyTimerComplete, notifySubtaskComplete } from '../utils/notifications.js';
 
 /**
  * Modo Foco: pantalla completa, un solo proposito.
@@ -24,8 +25,8 @@ export function FocusMode({ taskId, subtask, taskTitle, onExit }) {
   }, [totalSeconds, subtask.timeSpentSeconds]);
 
   const handleTimerComplete = useCallback(() => {
-    // Timer reached zero — auto-complete
-  }, []);
+    notifyTimerComplete(subtask.title);
+  }, [subtask.title]);
 
   const timer = useTimer(startingSeconds, {
     onComplete: handleTimerComplete,
@@ -72,6 +73,7 @@ export function FocusMode({ taskId, subtask, taskTitle, onExit }) {
   function handleDone() {
     timer.pause();
     completeSubtask(taskId, subtask.id, elapsedTotal);
+    notifySubtaskComplete(subtask.title, taskTitle);
     onExit();
   }
 

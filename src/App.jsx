@@ -1,9 +1,11 @@
 import { TaskInput, TaskTree, TaskNav, TaskNavMobile, LearningPanel, StatsPanel, SettingsPanel } from './components/index.js';
 import useTaskStore from './store/taskStore.js';
 import { loadApiConfig } from './utils/api.js';
+import { useNotifications } from './hooks/useNotifications.js';
 
 function App() {
   const { tasks, currentTaskId, isCreatingTask, activeView, setActiveView } = useTaskStore();
+  useNotifications();
   const hasTasks = tasks.length > 0;
   const apiConfigured = !!loadApiConfig()?.apiKey;
   const showInput = !hasTasks || isCreatingTask;

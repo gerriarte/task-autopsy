@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { loadTasks, saveTasks, loadLearningPath, saveLearningPath } from '../utils/storage.js';
 import { TASK_STATUS } from '../utils/constants.js';
 import { fireWebhook, WEBHOOK_EVENTS } from '../utils/webhook.js';
+import { notifyTaskComplete } from '../utils/notifications.js';
 
 /**
  * Chequea si una tarea tiene todas sus subtasks completadas.
@@ -229,7 +230,7 @@ const useTaskStore = create((set, get) => ({
           estimatedMinutes: subtask.estimatedMinutes,
         });
       }
-      // Webhook: tarea completada (si todas las subtasks están hechas)
+      // Webhook + notificacion: tarea completada (si todas las subtasks están hechas)
       if (task?.status === TASK_STATUS.COMPLETED) {
         fireWebhook(WEBHOOK_EVENTS.TASK_COMPLETED, {
           taskId,
@@ -238,6 +239,7 @@ const useTaskStore = create((set, get) => ({
           estimatedMinutes: task.estimatedMinutes,
           completedAt: task.completedAt,
         });
+        notifyTaskComplete(task.title, task.subtasks.length);
       }
 
       return {

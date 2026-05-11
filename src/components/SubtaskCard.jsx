@@ -5,6 +5,7 @@ import useTaskStore from '../store/taskStore.js';
 import { useTimer, formatTime } from '../hooks/useTimer.js';
 import { TASK_STATUS } from '../utils/constants.js';
 import { FocusMode } from './FocusMode.jsx';
+import { notifyTimerComplete, notifySubtaskComplete } from '../utils/notifications.js';
 
 export function SubtaskCard({ subtask, taskId, taskTitle }) {
   const [showFocus, setShowFocus] = useState(false);
@@ -48,7 +49,10 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
   }, [totalSeconds, subtask.timeSpentSeconds]);
 
   const timer = useTimer(startingSeconds, {
-    onComplete: () => completeSubtask(taskId, subtask.id, totalSeconds),
+    onComplete: () => {
+      completeSubtask(taskId, subtask.id, totalSeconds);
+      notifyTimerComplete(subtask.title);
+    },
   });
 
   useEffect(() => {
@@ -76,6 +80,7 @@ export function SubtaskCard({ subtask, taskId, taskTitle }) {
   function handleComplete() {
     timer.pause();
     completeSubtask(taskId, subtask.id, elapsedTotal);
+    notifySubtaskComplete(subtask.title, taskTitle);
     setJustCompleted(true);
     setTimeout(() => setJustCompleted(false), 400);
   }
