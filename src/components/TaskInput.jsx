@@ -30,7 +30,7 @@ export function TaskInput() {
               Que necesitas descomponer hoy?
             </h2>
             <p className="mt-1.5 text-sm text-zen-500 leading-relaxed">
-              Escribi una tarea grande o vaga. La AI la convierte en pasos de 15-30 min.
+              Escribi una tarea grande o vaga. La AI la convierte en pasos accionables de 15-30 min.
             </p>
           </>
         ) : (

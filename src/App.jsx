@@ -20,12 +20,12 @@ function App() {
       <header className="sticky top-0 z-20 border-b border-zen-300/60 bg-[#fffef9]/95 backdrop-blur-lg shrink-0 shadow-[0_1px_3px_rgb(26_22_16/0.05)]">
         <div className="px-5 lg:px-8 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="size-8 rounded-lg bg-brand-700 grid place-items-center text-white font-bold text-sm tracking-tight shadow-sm">
-              T
+            <div className="size-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 grid place-items-center text-white font-bold text-sm tracking-tight shadow-sm">
+              N
             </div>
             <div>
               <h1 className="text-sm font-semibold leading-none tracking-tight text-zen-900">
-                Task Autopsy
+                Nougram <span className="font-normal text-zen-500">Tasks</span>
               </h1>
               <p className="text-[10px] text-zen-400 mt-0.5 hidden sm:block tracking-wide">
                 Descompone. Enfoca. Completa.
@@ -99,6 +99,22 @@ function App() {
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Footer — ecosystem link */}
+          <div className="px-5 lg:px-8 pb-6 pt-2">
+            <p className="text-center text-[10px] text-zen-400 tracking-wide">
+              Parte del ecosistema{' '}
+              <a
+                href="https://nougram.co"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-500 hover:text-brand-600 font-medium transition-colors duration-200"
+              >
+                Nougram
+              </a>
+              {' '}— Rentabilidad real para agencias
+            </p>
           </div>
         </main>
       </div>

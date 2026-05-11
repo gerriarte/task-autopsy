@@ -1,11 +1,11 @@
 {
-  "name": "Task Autopsy",
-  "short_name": "TaskAutopsy",
-  "description": "Descompone tareas complejas en micro-tareas accionables con AI. Disenada para personas con ADHD.",
+  "name": "Nougram Tasks",
+  "short_name": "NougramTasks",
+  "description": "Descompone tareas complejas en micro-tareas accionables con AI. Parte del ecosistema Nougram.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fafaf9",
-  "theme_color": "#4f46e5",
+  "background_color": "#f5f1e8",
+  "theme_color": "#F35D0A",
   "orientation": "any",
   "categories": ["productivity", "utilities"],
   "icons": [
